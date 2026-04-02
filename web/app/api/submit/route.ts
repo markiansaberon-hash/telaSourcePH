@@ -184,17 +184,19 @@ export async function POST(request: NextRequest) {
         .filter(Boolean)
         .join("\n");
 
-      fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          chat_id: chatId,
-          text: message,
-          parse_mode: "Markdown",
-        }),
-      }).catch(() => {
+      try {
+        await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            chat_id: chatId,
+            text: message,
+            parse_mode: "Markdown",
+          }),
+        });
+      } catch {
         // Don't block order submission if Telegram fails
-      });
+      }
     }
 
     return NextResponse.json({ orderId });
