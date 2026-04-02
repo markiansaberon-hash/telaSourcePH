@@ -62,7 +62,7 @@ function Footer() {
             <ul className="space-y-2 text-sm text-text-muted">
               <li>Call / Viber / Text: 0917 328 7704</li>
               <li>Facebook: /telasourceph</li>
-              <li>Email: telasourceph@gmail.com</li>
+              <li>Email: orders@telasourceph.com</li>
             </ul>
           </div>
           <div>
