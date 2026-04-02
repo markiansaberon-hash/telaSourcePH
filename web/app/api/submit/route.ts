@@ -199,6 +199,20 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Send to Google Sheets
+    const sheetsUrl = process.env.GOOGLE_SHEETS_WEBHOOK;
+    if (sheetsUrl) {
+      try {
+        await fetch(sheetsUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(orderInfo),
+        });
+      } catch {
+        // Don't block order submission if Sheets fails
+      }
+    }
+
     return NextResponse.json({ orderId });
   } catch {
     return NextResponse.json(
