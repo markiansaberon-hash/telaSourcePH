@@ -65,17 +65,16 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 // Data directory (persists across requests)
 const DATA_DIR = path.join(process.cwd(), "data");
-const UPLOADS_DIR = path.join(DATA_DIR, "uploads");
+const ORDERS_DIR = path.join(DATA_DIR, "orders");
 const ORDERS_CSV = path.join(DATA_DIR, "orders.csv");
 const ORDER_ITEMS_CSV = path.join(DATA_DIR, "order-items.csv");
 
 const ORDERS_HEADER =
   "Order ID,Date Submitted,Customer Name,Phone,Contact Via,Location,Fabric List (Text),Image File,Status,Assigned Staff,Quotation Sent,Confirmed Date,Delivery Date,Total Amount,Notes";
-const ITEMS_HEADER =
-  "Order ID,Fabric Name,Quantity,Unit";
+const ITEMS_HEADER = "Order ID,Fabric Name,Quantity,Unit";
 
 async function ensureDataDir(): Promise<void> {
-  await mkdir(UPLOADS_DIR, { recursive: true });
+  await mkdir(ORDERS_DIR, { recursive: true });
 
   // Create CSV files with headers if they don't exist
   try {
@@ -193,18 +192,40 @@ export async function POST(request: NextRequest) {
     // Ensure data directories exist
     await ensureDataDir();
 
-    // Save uploaded file
+    // Create per-order directory
+    const orderDir = path.join(ORDERS_DIR, orderId);
+    await mkdir(orderDir, { recursive: true });
+
+    // Save uploaded file to per-order folder
     let imageFilename = "";
     if (hasFile) {
       const ext =
         file!.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") ||
         "jpg";
-      imageFilename = `${orderId}.${ext}`;
+      imageFilename = `upload.${ext}`;
       const buffer = Buffer.from(await file!.arrayBuffer());
-      await writeFile(path.join(UPLOADS_DIR, imageFilename), buffer);
+      await writeFile(path.join(orderDir, imageFilename), buffer);
     }
 
-    // Append order to CSV
+    // Save order info.json to per-order folder
+    const orderInfo = {
+      orderId,
+      dateSubmitted,
+      customerName: name,
+      phone,
+      contactMethod,
+      location,
+      fabricListText: fabricList,
+      imageFile: imageFilename,
+      notes,
+      status: "New",
+    };
+    await writeFile(
+      path.join(orderDir, "info.json"),
+      JSON.stringify(orderInfo, null, 2),
+    );
+
+    // Append order to consolidated CSV
     const orderRow = [
       orderId,
       dateSubmitted,
@@ -213,7 +234,7 @@ export async function POST(request: NextRequest) {
       contactMethod,
       location,
       fabricList,
-      imageFilename,
+      imageFilename ? `orders/${orderId}/${imageFilename}` : "",
       "New",
       "", // Assigned Staff
       "", // Quotation Sent
@@ -227,7 +248,7 @@ export async function POST(request: NextRequest) {
 
     await appendFile(ORDERS_CSV, orderRow + "\n");
 
-    // Append structured fabric items to order-items CSV
+    // Save structured fabric items
     if (hasStructuredItems) {
       try {
         const items = JSON.parse(fabricItems) as Array<{
@@ -235,21 +256,29 @@ export async function POST(request: NextRequest) {
           quantity: string;
           unit: string;
         }>;
-        const itemRows = items
-          .filter((item) => item.name.trim())
-          .map((item) =>
-            [
-              orderId,
-              sanitize(item.name),
-              sanitize(item.quantity),
-              sanitize(item.unit),
-            ]
-              .map(csvEscape)
-              .join(","),
-          )
-          .join("\n");
+        const validItems = items.filter((item) => item.name.trim());
 
-        if (itemRows) {
+        if (validItems.length > 0) {
+          // Save items.json to per-order folder
+          await writeFile(
+            path.join(orderDir, "items.json"),
+            JSON.stringify(validItems, null, 2),
+          );
+
+          // Append to consolidated order-items CSV
+          const itemRows = validItems
+            .map((item) =>
+              [
+                orderId,
+                sanitize(item.name),
+                sanitize(item.quantity),
+                sanitize(item.unit),
+              ]
+                .map(csvEscape)
+                .join(","),
+            )
+            .join("\n");
+
           await appendFile(ORDER_ITEMS_CSV, itemRows + "\n");
         }
       } catch {

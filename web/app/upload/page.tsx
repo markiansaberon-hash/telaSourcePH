@@ -49,6 +49,7 @@ export default function UploadPage() {
     phone: "",
     contactMethod: "",
     location: "",
+    locationOther: "",
     fabricList: "",
     notes: "",
   });
@@ -121,6 +122,11 @@ export default function UploadPage() {
       return;
     }
 
+    if (form.location === "Other" && !form.locationOther.trim()) {
+      setError("Please specify your location.");
+      return;
+    }
+
     // Check that at least one input method is used
     const hasFile = !!file;
     const hasTextList = form.fabricList.trim().length > 0;
@@ -141,7 +147,10 @@ export default function UploadPage() {
       formData.append("name", form.name);
       formData.append("phone", form.phone);
       formData.append("contactMethod", form.contactMethod);
-      formData.append("location", form.location);
+      formData.append(
+        "location",
+        form.location === "Other" ? form.locationOther.trim() : form.location,
+      );
       formData.append("fabricList", form.fabricList);
       formData.append("notes", form.notes);
 
@@ -179,13 +188,13 @@ export default function UploadPage() {
   }
 
   const inputClass =
-    "w-full rounded-lg border border-gray-300 px-4 py-3 text-base transition focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none";
+    "w-full rounded-lg border border-[#D4C4B0] bg-white px-4 py-3 text-base text-text transition focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none";
 
   return (
-    <section className="bg-surface px-4 py-12 md:py-20">
+    <section className="bg-cream px-4 py-12 md:py-20">
       <div className="mx-auto max-w-2xl">
         <div className="mb-8 text-center">
-          <h1 className="mb-3 text-3xl font-bold text-primary md:text-4xl">
+          <h1 className="mb-3 text-3xl font-extrabold text-text md:text-4xl">
             Submit Your Fabric List
           </h1>
           <p className="text-text-light">
@@ -196,15 +205,15 @@ export default function UploadPage() {
 
         <form
           onSubmit={handleSubmit}
-          className="space-y-6 rounded-2xl bg-white p-6 shadow-sm md:p-10"
+          className="space-y-6 rounded-xl bg-white p-6 shadow-[0_2px_12px_rgba(44,24,16,0.06)] md:p-10"
         >
           {/* Name */}
           <div>
             <label
               htmlFor="name"
-              className="mb-1.5 block text-sm font-semibold text-primary"
+              className="mb-1.5 block text-sm font-semibold text-text"
             >
-              Full Name <span className="text-red-500">*</span>
+              Full Name <span className="text-error">*</span>
             </label>
             <input
               type="text"
@@ -222,9 +231,9 @@ export default function UploadPage() {
           <div>
             <label
               htmlFor="phone"
-              className="mb-1.5 block text-sm font-semibold text-primary"
+              className="mb-1.5 block text-sm font-semibold text-text"
             >
-              Phone Number <span className="text-red-500">*</span>
+              Phone Number <span className="text-error">*</span>
             </label>
             <input
               type="tel"
@@ -242,10 +251,10 @@ export default function UploadPage() {
           <div>
             <label
               htmlFor="contactMethod"
-              className="mb-1.5 block text-sm font-semibold text-primary"
+              className="mb-1.5 block text-sm font-semibold text-text"
             >
               How should we contact you?{" "}
-              <span className="text-red-500">*</span>
+              <span className="text-error">*</span>
             </label>
             <select
               id="contactMethod"
@@ -268,10 +277,10 @@ export default function UploadPage() {
           <div>
             <label
               htmlFor="location"
-              className="mb-1.5 block text-sm font-semibold text-primary"
+              className="mb-1.5 block text-sm font-semibold text-text"
             >
               Location / Delivery Area{" "}
-              <span className="text-red-500">*</span>
+              <span className="text-error">*</span>
             </label>
             <select
               id="location"
@@ -288,10 +297,22 @@ export default function UploadPage() {
                 </option>
               ))}
             </select>
+            {form.location === "Other" && (
+              <input
+                type="text"
+                id="locationOther"
+                name="locationOther"
+                value={form.locationOther}
+                onChange={handleChange}
+                placeholder="Enter your city or province"
+                className={`mt-2 ${inputClass}`}
+                required
+              />
+            )}
           </div>
 
           {/* Divider */}
-          <div className="border-t border-gray-200 pt-2">
+          <div className="border-t border-primary/20 pt-2">
             <p className="text-sm font-semibold text-primary">
               Your Fabric List{" "}
               <span className="font-normal text-text-light">
@@ -302,7 +323,7 @@ export default function UploadPage() {
 
           {/* File Upload */}
           <div>
-            <label className="mb-1.5 block text-sm font-semibold text-primary">
+            <label className="mb-1.5 block text-sm font-semibold text-text">
               Option 1: Upload a Photo
             </label>
             <p className="mb-3 text-xs text-text-light">
@@ -317,7 +338,7 @@ export default function UploadPage() {
               }}
               role="button"
               tabIndex={0}
-              className="cursor-pointer rounded-lg border-2 border-dashed border-gray-300 p-6 text-center transition hover:border-primary hover:bg-primary/5"
+              className="cursor-pointer rounded-lg border-2 border-dashed border-primary/30 bg-cream p-6 text-center transition hover:border-primary hover:bg-primary/5"
             >
               {filePreview ? (
                 <div className="space-y-3">
@@ -328,12 +349,12 @@ export default function UploadPage() {
                     className="mx-auto max-h-48 rounded-lg"
                   />
                   <p className="text-sm text-text-light">{file?.name}</p>
-                  <p className="text-xs text-accent">Click to change</p>
+                  <p className="text-xs text-primary">Click to change</p>
                 </div>
               ) : file ? (
                 <div className="space-y-2">
                   <p className="text-sm text-text-light">{file.name}</p>
-                  <p className="text-xs text-accent">Click to change</p>
+                  <p className="text-xs text-primary">Click to change</p>
                 </div>
               ) : (
                 <div className="space-y-1">
@@ -359,7 +380,7 @@ export default function UploadPage() {
           <div>
             <label
               htmlFor="fabricList"
-              className="mb-1.5 block text-sm font-semibold text-primary"
+              className="mb-1.5 block text-sm font-semibold text-text"
             >
               Option 2: Type Your List
             </label>
@@ -376,7 +397,7 @@ export default function UploadPage() {
 
           {/* Structured Fabric Items Repeater */}
           <div>
-            <label className="mb-1.5 block text-sm font-semibold text-primary">
+            <label className="mb-1.5 block text-sm font-semibold text-text">
               Option 3: Add Items One by One
             </label>
             <p className="mb-3 text-xs text-text-light">
@@ -387,7 +408,7 @@ export default function UploadPage() {
               {fabricItems.map((item, index) => (
                 <div
                   key={index}
-                  className="flex items-start gap-2 rounded-lg border border-gray-200 bg-surface p-3"
+                  className="flex items-start gap-2 rounded-lg border border-cream-dark bg-cream p-3"
                 >
                   <div className="min-w-0 flex-1">
                     <input
@@ -397,7 +418,7 @@ export default function UploadPage() {
                         handleItemChange(index, "name", e.target.value)
                       }
                       placeholder="Fabric name (e.g. Oxford White)"
-                      className="mb-2 w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none"
+                      className="mb-2 w-full rounded border border-[#D4C4B0] px-3 py-2 text-sm focus:border-primary focus:outline-none"
                     />
                     <div className="flex gap-2">
                       <input
@@ -408,14 +429,14 @@ export default function UploadPage() {
                         }
                         placeholder="Qty"
                         min="1"
-                        className="w-20 rounded border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none"
+                        className="w-20 rounded border border-[#D4C4B0] px-3 py-2 text-sm focus:border-primary focus:outline-none"
                       />
                       <select
                         value={item.unit}
                         onChange={(e) =>
                           handleItemChange(index, "unit", e.target.value)
                         }
-                        className="rounded border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none"
+                        className="rounded border border-[#D4C4B0] px-3 py-2 text-sm focus:border-primary focus:outline-none"
                       >
                         {UNITS.map((unit) => (
                           <option key={unit} value={unit}>
@@ -429,7 +450,7 @@ export default function UploadPage() {
                     <button
                       type="button"
                       onClick={() => removeItem(index)}
-                      className="mt-1 rounded p-1 text-gray-400 transition hover:bg-red-50 hover:text-red-500"
+                      className="mt-1 rounded p-1 text-gray-400 transition hover:bg-red-50 hover:text-error"
                       aria-label="Remove item"
                     >
                       <svg
@@ -454,7 +475,7 @@ export default function UploadPage() {
             <button
               type="button"
               onClick={addItem}
-              className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed border-gray-300 py-3 text-sm font-medium text-primary transition hover:border-primary hover:bg-primary/5"
+              className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed border-primary/30 py-3 text-sm font-medium text-primary transition hover:border-primary hover:bg-primary/5"
             >
               <svg
                 className="h-4 w-4"
@@ -477,7 +498,7 @@ export default function UploadPage() {
           <div>
             <label
               htmlFor="notes"
-              className="mb-1.5 block text-sm font-semibold text-primary"
+              className="mb-1.5 block text-sm font-semibold text-text"
             >
               Special Notes (Optional)
             </label>
@@ -494,7 +515,7 @@ export default function UploadPage() {
 
           {/* Error */}
           {error && (
-            <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600">
+            <div className="rounded-lg bg-error/10 px-4 py-3 text-sm text-error">
               {error}
             </div>
           )}
@@ -503,7 +524,7 @@ export default function UploadPage() {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full rounded-xl bg-accent px-6 py-4 text-lg font-bold text-white transition hover:bg-accent-dark disabled:cursor-not-allowed disabled:opacity-60"
+            className="w-full rounded-full bg-gradient-to-r from-primary to-accent px-6 py-4 text-lg font-bold text-cream shadow-[0_4px_20px_rgba(196,102,46,0.35)] transition hover:scale-[1.02] hover:shadow-[0_6px_30px_rgba(196,102,46,0.45)] disabled:cursor-not-allowed disabled:opacity-60"
           >
             {submitting ? "Submitting..." : "Submit My List"}
           </button>

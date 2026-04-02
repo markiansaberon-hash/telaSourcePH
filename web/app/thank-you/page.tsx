@@ -8,9 +8,9 @@ export default async function ThankYouPage({
   const { orderId } = await searchParams;
 
   return (
-    <section className="flex min-h-[60vh] items-center bg-surface px-4 py-20">
+    <section className="flex min-h-[60vh] items-center bg-cream px-4 py-20">
       <div className="mx-auto max-w-lg text-center">
-        <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-success text-white">
+        <div className="animate-fade-in-up mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-success text-white">
           <svg
             className="h-10 w-10"
             fill="none"
@@ -26,32 +26,33 @@ export default async function ThankYouPage({
           </svg>
         </div>
 
-        <h1 className="mb-4 text-3xl font-bold text-primary md:text-4xl">
+        <h1 className="animate-fade-in-up animate-delay-100 mb-4 text-3xl font-extrabold text-text md:text-4xl">
           List Received!
         </h1>
 
-        <p className="mb-6 text-lg text-text-light">
+        <p className="animate-fade-in-up animate-delay-200 mb-6 text-lg text-text-light">
           Salamat! We received your fabric list. Our team will review it and send
-          you a quotation within <strong>24 hours</strong> via Viber/WhatsApp.
+          you a quotation within <strong className="text-text">24 hours</strong> through your preferred
+          messaging app.
         </p>
 
         {orderId && (
-          <div className="mb-6 rounded-xl bg-white px-6 py-4 shadow-sm">
+          <div className="animate-fade-in-up animate-delay-300 mb-6 rounded-xl border-l-4 border-accent bg-white px-6 py-4 shadow-[0_2px_12px_rgba(44,24,16,0.06)]">
             <p className="text-sm text-text-light">Your reference number</p>
-            <p className="text-xl font-bold text-primary">{orderId}</p>
+            <p className="text-xl font-bold text-text">{orderId}</p>
           </div>
         )}
 
-        <div className="mb-8 rounded-xl bg-primary/5 px-6 py-4">
+        <div className="animate-fade-in-up animate-delay-300 mb-8 rounded-xl bg-cream-dark px-6 py-4">
           <p className="text-sm text-text-light">
-            Questions? Message us on Viber
+            Questions? Call or message us
           </p>
-          <p className="text-lg font-semibold text-primary">09XX XXX XXXX</p>
+          <p className="text-lg font-bold text-primary">0917 328 7704</p>
         </div>
 
         <Link
           href="/"
-          className="inline-block rounded-xl bg-primary px-8 py-3 font-semibold text-white transition hover:bg-primary-dark"
+          className="animate-fade-in-up animate-delay-400 inline-block rounded-full bg-primary px-8 py-3 font-semibold text-cream transition hover:bg-primary-dark"
         >
           Back to Home
         </Link>

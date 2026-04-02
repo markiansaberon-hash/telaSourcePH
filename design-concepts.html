@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TelaSource PH — Design Concepts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Nunito:wght@400;600;700&family=Cabinet+Grotesk:wght@400;700;800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: system-ui, sans-serif;
+    background: #0a0a0a;
+    color: #fff;
+    min-height: 100vh;
+    padding: 40px 20px;
+  }
+
+  .page-header {
+    text-align: center;
+    margin-bottom: 60px;
+  }
+  .page-header h1 {
+    font-size: 2rem;
+    font-weight: 300;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 8px;
+  }
+  .page-header p {
+    color: #555;
+    font-size: 0.95rem;
+  }
+
+  .concepts-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  @media (max-width: 1100px) {
+    .concepts-grid { grid-template-columns: 1fr; max-width: 600px; }
+  }
+
+  .concept-card {
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid #222;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .concept-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+
+  .concept-label {
+    padding: 16px 20px;
+    background: #111;
+    border-bottom: 1px solid #222;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .concept-label .letter {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+  }
+  .concept-label .info h3 {
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+  .concept-label .info p {
+    font-size: 0.75rem;
+    color: #666;
+    margin-top: 2px;
+  }
+
+  /* ========================================
+     CONCEPT A — Warm & Familiar
+     ======================================== */
+  .concept-a .letter { background: #C4662E; color: #FFF8F0; }
+
+  .concept-a .hero {
+    background: #2C1810;
+    background-image:
+      radial-gradient(ellipse at 20% 50%, rgba(196,102,46,0.15) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 80%, rgba(218,165,32,0.1) 0%, transparent 50%),
+      url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0 L60 30 L30 60 L0 30Z' fill='none' stroke='%23C4662E' stroke-width='0.3' opacity='0.08'/%3E%3C/svg%3E");
+    padding: 40px 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  .concept-a .hero::before {
+    content: '';
+    position: absolute;
+    top: -20px;
+    right: -20px;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(218,165,32,0.2) 0%, transparent 70%);
+  }
+  .concept-a .hero .greeting {
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #DAA520;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    display: inline-block;
+    position: relative;
+  }
+  .concept-a .hero .greeting::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, #DAA520, transparent);
+    border-radius: 2px;
+  }
+  .concept-a .hero h2 {
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-size: 1.65rem;
+    font-weight: 700;
+    color: #FFF8F0;
+    line-height: 1.2;
+    margin-bottom: 12px;
+  }
+  .concept-a .hero h2 em {
+    font-style: normal;
+    color: #E8943A;
+    position: relative;
+  }
+  .concept-a .hero h2 em::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: #E8943A;
+    border-radius: 3px;
+    opacity: 0.4;
+  }
+  .concept-a .hero p {
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.85rem;
+    color: #B8A08A;
+    line-height: 1.6;
+    max-width: 90%;
+  }
+  .concept-a .hero .cta {
+    margin-top: 20px;
+    display: inline-block;
+    padding: 12px 28px;
+    background: linear-gradient(135deg, #C4662E, #E8943A);
+    color: #FFF8F0;
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    border-radius: 50px;
+    text-decoration: none;
+    box-shadow: 0 4px 20px rgba(196,102,46,0.4);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .concept-a .hero .cta:hover {
+    transform: scale(1.03);
+    box-shadow: 0 6px 30px rgba(196,102,46,0.5);
+  }
+
+  .concept-a .stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    background: #1E120B;
+    border-top: 2px solid rgba(196,102,46,0.2);
+  }
+  .concept-a .stats .stat {
+    padding: 16px 12px;
+    text-align: center;
+    border-right: 1px solid rgba(196,102,46,0.1);
+  }
+  .concept-a .stats .stat:last-child { border-right: none; }
+  .concept-a .stats .stat .num {
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #DAA520;
+  }
+  .concept-a .stats .stat .lbl {
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.65rem;
+    color: #8A7060;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-top: 2px;
+  }
+
+  .concept-a .sample-card {
+    padding: 24px 28px;
+    background: #FFF8F0;
+  }
+  .concept-a .sample-card .step-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    background: rgba(196,102,46,0.1);
+    border-radius: 50px;
+    margin-bottom: 12px;
+  }
+  .concept-a .sample-card .step-badge .num {
+    width: 22px;
+    height: 22px;
+    background: #C4662E;
+    color: #FFF8F0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+  }
+  .concept-a .sample-card .step-badge span {
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #C4662E;
+  }
+  .concept-a .sample-card h4 {
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #2C1810;
+    margin-bottom: 6px;
+  }
+  .concept-a .sample-card p {
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.8rem;
+    color: #6B5445;
+    line-height: 1.5;
+  }
+
+  /* ========================================
+     CONCEPT B — Modern & Clean
+     ======================================== */
+  .concept-b .letter { background: #0D9488; color: #fff; }
+
+  .concept-b .hero {
+    background: linear-gradient(160deg, #0F172A 0%, #1E293B 50%, #0F172A 100%);
+    padding: 40px 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  .concept-b .hero::before {
+    content: '';
+    position: absolute;
+    top: -60px;
+    right: -40px;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(13,148,136,0.2) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .concept-b .hero::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(13,148,136,0.4), transparent);
+  }
+  .concept-b .hero .greeting {
+    font-family: 'Cabinet Grotesk', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #0D9488;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .concept-b .hero .greeting::before {
+    content: '';
+    width: 20px;
+    height: 2px;
+    background: #0D9488;
+    border-radius: 2px;
+  }
+  .concept-b .hero h2 {
+    font-family: 'Cabinet Grotesk', sans-serif;
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: #F1F5F9;
+    line-height: 1.15;
+    margin-bottom: 12px;
+    letter-spacing: -0.02em;
+  }
+  .concept-b .hero h2 em {
+    font-style: normal;
+    background: linear-gradient(135deg, #0D9488, #2DD4BF);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .concept-b .hero p {
+    font-family: 'Cabinet Grotesk', sans-serif;
+    font-size: 0.85rem;
+    color: #94A3B8;
+    line-height: 1.6;
+    font-weight: 400;
+  }
+  .concept-b .hero .cta {
+    margin-top: 20px;
+    display: inline-block;
+    padding: 12px 28px;
+    background: #0D9488;
+    color: #fff;
+    font-family: 'Cabinet Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    border-radius: 10px;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.2s;
+    box-shadow: 0 0 30px rgba(13,148,136,0.3);
+  }
+  .concept-b .hero .cta:hover {
+    background: #0F766E;
+    transform: translateY(-1px);
+  }
+
+  .concept-b .stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    background: rgba(15,23,42,0.95);
+    backdrop-filter: blur(10px);
+  }
+  .concept-b .stats .stat {
+    padding: 16px 12px;
+    text-align: center;
+    border-right: 1px solid rgba(13,148,136,0.15);
+  }
+  .concept-b .stats .stat:last-child { border-right: none; }
+  .concept-b .stats .stat .num {
+    font-family: 'Cabinet Grotesk', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #2DD4BF;
+    letter-spacing: -0.02em;
+  }
+  .concept-b .stats .stat .lbl {
+    font-family: 'Cabinet Grotesk', sans-serif;
+    font-size: 0.65rem;
+    color: #64748B;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-top: 2px;
+  }
+
+  .concept-b .sample-card {
+    padding: 24px 28px;
+    background: #F8FAFC;
+  }
+  .concept-b .sample-card .step-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    background: rgba(13,148,136,0.08);
+    border: 1px solid rgba(13,148,136,0.15);
+    border-radius: 8px;
+    margin-bottom: 12px;
+  }
+  .concept-b .sample-card .step-badge .num {
+    width: 22px;
+    height: 22px;
+    background: linear-gradient(135deg, #0D9488, #2DD4BF);
+    color: #fff;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Cabinet Grotesk', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+  }
+  .concept-b .sample-card .step-badge span {
+    font-family: 'Cabinet Grotesk', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #0D9488;
+  }
+  .concept-b .sample-card h4 {
+    font-family: 'Cabinet Grotesk', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #0F172A;
+    margin-bottom: 6px;
+    letter-spacing: -0.01em;
+  }
+  .concept-b .sample-card p {
+    font-family: 'Cabinet Grotesk', sans-serif;
+    font-size: 0.8rem;
+    color: #64748B;
+    line-height: 1.5;
+  }
+
+  /* ========================================
+     CONCEPT C — Premium & Established
+     ======================================== */
+  .concept-c .letter { background: #7A1B3D; color: #F5E6C8; }
+
+  .concept-c .hero {
+    background: #1A0A12;
+    background-image:
+      radial-gradient(ellipse at 30% 20%, rgba(122,27,61,0.2) 0%, transparent 60%),
+      radial-gradient(ellipse at 70% 80%, rgba(181,142,58,0.08) 0%, transparent 50%);
+    padding: 40px 28px;
+    position: relative;
+    overflow: hidden;
+    border-bottom: 1px solid rgba(181,142,58,0.2);
+  }
+  .concept-c .hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(181,142,58,0.4), transparent);
+  }
+  .concept-c .hero .greeting {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #B58E3A;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .concept-c .hero .greeting::before,
+  .concept-c .hero .greeting::after {
+    content: '';
+    width: 16px;
+    height: 1px;
+    background: #B58E3A;
+  }
+  .concept-c .hero h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.7rem;
+    font-weight: 600;
+    color: #F5E6C8;
+    line-height: 1.25;
+    margin-bottom: 14px;
+  }
+  .concept-c .hero h2 em {
+    font-style: italic;
+    color: #B58E3A;
+  }
+  .concept-c .hero p {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 0.85rem;
+    color: #8A7A6A;
+    line-height: 1.7;
+    font-weight: 300;
+    max-width: 90%;
+  }
+  .concept-c .hero .cta {
+    margin-top: 22px;
+    display: inline-block;
+    padding: 13px 32px;
+    background: transparent;
+    color: #B58E3A;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-weight: 500;
+    font-size: 0.8rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    border: 1px solid rgba(181,142,58,0.4);
+    border-radius: 2px;
+    text-decoration: none;
+    transition: all 0.3s;
+  }
+  .concept-c .hero .cta:hover {
+    background: rgba(181,142,58,0.1);
+    border-color: #B58E3A;
+  }
+
+  .concept-c .stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    background: #140812;
+    border-top: 1px solid rgba(181,142,58,0.15);
+  }
+  .concept-c .stats .stat {
+    padding: 18px 12px;
+    text-align: center;
+    border-right: 1px solid rgba(181,142,58,0.1);
+    position: relative;
+  }
+  .concept-c .stats .stat:last-child { border-right: none; }
+  .concept-c .stats .stat .num {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #B58E3A;
+  }
+  .concept-c .stats .stat .lbl {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 0.6rem;
+    color: #6A5A50;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-top: 4px;
+    font-weight: 400;
+  }
+
+  .concept-c .sample-card {
+    padding: 24px 28px;
+    background: #FBF8F1;
+    border-top: 1px solid rgba(181,142,58,0.15);
+  }
+  .concept-c .sample-card .step-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .concept-c .sample-card .step-badge .num {
+    width: 24px;
+    height: 24px;
+    border: 1px solid #B58E3A;
+    color: #B58E3A;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  .concept-c .sample-card .step-badge span {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: #7A1B3D;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .concept-c .sample-card h4 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1A0A12;
+    margin-bottom: 6px;
+  }
+  .concept-c .sample-card p {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 0.8rem;
+    color: #6A5A50;
+    line-height: 1.6;
+    font-weight: 300;
+  }
+
+  /* Animations */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .concept-card { animation: fadeInUp 0.6s ease both; }
+  .concept-card:nth-child(2) { animation-delay: 0.15s; }
+  .concept-card:nth-child(3) { animation-delay: 0.3s; }
+</style>
+</head>
+<body>
+  <div class="page-header">
+    <h1>TelaSource PH</h1>
+    <p>Design Concept Comparison — Pick Your Direction</p>
+  </div>
+
+  <div class="concepts-grid">
+
+    <!-- CONCEPT A -->
+    <div class="concept-card concept-a">
+      <div class="concept-label">
+        <div class="letter">A</div>
+        <div class="info">
+          <h3>Warm & Familiar</h3>
+          <p>Tindahan vibe — earthy, personal, trusted</p>
+        </div>
+      </div>
+      <div class="hero">
+        <div class="greeting">Mabuhay!</div>
+        <h2>Send us your fabric list.<br><em>We'll find the best price.</em></h2>
+        <p>Skip the hassle of going to Divisoria. We source from 50+ suppliers and deliver fast.</p>
+        <a href="#" class="cta">Upload Your List</a>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="num">50+</div><div class="lbl">Suppliers</div></div>
+        <div class="stat"><div class="num">50+</div><div class="lbl">Years</div></div>
+        <div class="stat"><div class="num">200+</div><div class="lbl">Orders/Mo</div></div>
+      </div>
+      <div class="sample-card">
+        <div class="step-badge"><div class="num">1</div><span>Step One</span></div>
+        <h4>Send Your List</h4>
+        <p>Upload a photo of your handwritten fabric list or type it in. Takes less than 2 minutes.</p>
+      </div>
+    </div>
+
+    <!-- CONCEPT B -->
+    <div class="concept-card concept-b">
+      <div class="concept-label">
+        <div class="letter">B</div>
+        <div class="info">
+          <h3>Modern & Clean</h3>
+          <p>Shopee/Lazada-level — sleek, confident</p>
+        </div>
+      </div>
+      <div class="hero">
+        <div class="greeting">Mabuhay!</div>
+        <h2>Send us your fabric list.<br><em>We'll find the best price.</em></h2>
+        <p>Skip the hassle of going to Divisoria. We source from 50+ suppliers and deliver fast.</p>
+        <a href="#" class="cta">Upload Your List</a>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="num">50+</div><div class="lbl">Suppliers</div></div>
+        <div class="stat"><div class="num">50+</div><div class="lbl">Years</div></div>
+        <div class="stat"><div class="num">200+</div><div class="lbl">Orders/Mo</div></div>
+      </div>
+      <div class="sample-card">
+        <div class="step-badge"><div class="num">1</div><span>Step One</span></div>
+        <h4>Send Your List</h4>
+        <p>Upload a photo of your handwritten fabric list or type it in. Takes less than 2 minutes.</p>
+      </div>
+    </div>
+
+    <!-- CONCEPT C -->
+    <div class="concept-card concept-c">
+      <div class="concept-label">
+        <div class="letter">C</div>
+        <div class="info">
+          <h3>Premium & Established</h3>
+          <p>Legacy brand — rich, elegant, editorial</p>
+        </div>
+      </div>
+      <div class="hero">
+        <div class="greeting">Mabuhay!</div>
+        <h2>Send us your fabric list.<br><em>We'll find the best price.</em></h2>
+        <p>Skip the hassle of going to Divisoria. We source from 50+ suppliers and deliver fast.</p>
+        <a href="#" class="cta">Upload Your List</a>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="num">50+</div><div class="lbl">Suppliers</div></div>
+        <div class="stat"><div class="num">50+</div><div class="lbl">Years</div></div>
+        <div class="stat"><div class="num">200+</div><div class="lbl">Orders/Mo</div></div>
+      </div>
+      <div class="sample-card">
+        <div class="step-badge"><div class="num">1</div><span>Step One</span></div>
+        <h4>Send Your List</h4>
+        <p>Upload a photo of your handwritten fabric list or type it in. Takes less than 2 minutes.</p>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>
