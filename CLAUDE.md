@@ -2,19 +2,27 @@
 
 ## Project Overview
 
-TelaSourcePH is a B2B fabric sourcing platform for the Philippines. Customers (fabric shop owners, tailors, resellers) submit fabric lists via the website, and the team sources from 30+ Divisoria suppliers, consolidates, quotes, and delivers.
+TelaSourcePH is a B2B fabric sourcing platform for the Philippines. Customers (fabric shop owners, tailors, resellers) submit fabric lists via the website. The team sources from 50+ Divisoria suppliers, consolidates, quotes, and delivers.
+
+**Live site:** https://telasourceph.com
+**GitHub:** https://github.com/markiansaberon-hash/telaSourcePH
 
 ## Important
 
 - This is a **standalone project**. Never push to `kinetic-technology/risk-console`.
-- Push only to the TelaSourcePH GitHub repo (to be configured by owner).
+- Push only to `markiansaberon-hash/telaSourcePH`
+- Git credential: `isaberon-envisso` (added as collaborator)
 
 ## Tech Stack
 
 - **Framework**: Next.js 15 (App Router)
 - **Styling**: Tailwind CSS v4
-- **Storage**: Local CSV files + file uploads (no database)
-- **Deployment**: Vercel (free tier)
+- **Fonts**: Bricolage Grotesque (headings) + Cabinet Grotesk (body)
+- **Storage**: Vercel Blob (files + order JSON)
+- **Notifications**: Telegram Bot (@telasource_orders_bot)
+- **Hosting**: Vercel (free tier)
+- **Domain**: telasourceph.com (Porkbun)
+- **DNS + Email**: Cloudflare (free email routing → Gmail)
 
 ## Commands
 
@@ -23,7 +31,6 @@ cd web
 npm install          # Install dependencies
 npm run dev          # Dev server on localhost:3000
 npm run build        # Production build
-npm start            # Start production server
 ```
 
 ## Project Structure
@@ -31,55 +38,79 @@ npm start            # Start production server
 ```
 TelaSourcePH/
 ├── CLAUDE.md                    # This file
-├── README.md                    # Project overview
+├── README.md                    # Project overview + infrastructure
 ├── future-roadmap.md            # Phased improvement plan
-├── google-sheets-template.md    # Google Sheets structure (for manual tracking)
+├── google-sheets-template.md    # Google Sheets structure (future)
 ├── message-templates.md         # Viber/WhatsApp message templates
-├── website-structure.md         # Wix/website page specs
+├── website-structure.md         # Page design specs
 ├── workflow.md                  # Operational workflow
+├── design-concepts.html         # A/B/C design comparison page
+├── docs/superpowers/
+│   ├── specs/                   # Design specifications
+│   └── plans/                   # Implementation plans
 └── web/                         # Next.js application
     ├── app/
-    │   ├── layout.tsx           # Shared header + footer
-    │   ├── globals.css          # Tailwind + brand colors
-    │   ├── page.tsx             # Homepage
+    │   ├── layout.tsx           # Header + footer + font imports
+    │   ├── globals.css          # Tailwind theme (Modern Warmth palette)
+    │   ├── page.tsx             # Homepage (6 sections)
     │   ├── upload/page.tsx      # Order form (3 input methods)
     │   ├── thank-you/page.tsx   # Confirmation page
+    │   ├── components/
+    │   │   └── scroll-reveal.tsx # Scroll-triggered animation wrapper
     │   └── api/
-    │       ├── submit/route.ts  # Order submission API
-    │       └── orders/route.ts  # CSV download API (admin)
-    ├── data/                    # Runtime data (gitignored)
-    │   ├── orders.csv           # Order records
-    │   ├── order-items.csv      # Structured fabric items
-    │   └── uploads/             # Uploaded photos
+    │       ├── submit/route.ts  # Order submission → Blob + Telegram
+    │       ├── upload/route.ts  # Client file upload handler (Vercel Blob)
+    │       └── orders/route.ts  # Admin: list orders JSON or CSV
     ├── package.json
     ├── .env.example
     └── .gitignore
-
 ```
+
+## Design System — "Modern Warmth"
+
+Warm Filipino tindahan personality + modern clean execution.
+
+**Colors:**
+- Primary: `#C4662E` (Terracotta)
+- Accent: `#DAA520` (Golden amber)
+- Dark: `#2C1810` (Deep brown — hero, footer)
+- Cream: `#FFF8F0` (Warm cream — backgrounds)
+- Text: `#3D2B1F` (Espresso)
+
+**Fonts:** Bricolage Grotesque (headings, 700-800) + Cabinet Grotesk (body, 400)
 
 ## Key Features
 
-- **3 input methods**: Photo upload, text list, or structured item-by-item entry
-- **CSV storage**: Orders and items saved to CSV files, downloadable via admin endpoint
-- **File uploads**: Stored locally in `data/uploads/`
-- **Contact preference**: Customers choose Viber, WhatsApp, Messenger, Text (SMS), or Line
-- **Security**: Rate limiting, input sanitization, honeypot bot protection, admin key for downloads
+- **3 input methods**: Photo upload (up to 10MB), text list, or structured item-by-item
+- **Vercel Blob storage**: Orders saved as JSON, files as blobs — persistent across deploys
+- **Telegram notifications**: Instant push notification on new order with full details
+- **Admin API**: View orders as JSON or download as CSV
+- **Scroll animations**: Intersection Observer + CSS keyframes
+- **Email**: orders@telasourceph.com → forwards to Gmail via Cloudflare
 
 ## API Endpoints
 
-- `POST /api/submit` — Submit an order (multipart form data)
-- `GET /api/orders?key=ADMIN_KEY` — Download orders CSV
-- `GET /api/orders?key=ADMIN_KEY&type=items` — Download order items CSV
+- `POST /api/submit` — Submit order (JSON body with optional imageUrl)
+- `POST /api/upload` — Client upload handler for Vercel Blob
+- `GET /api/orders?key=ADMIN_KEY&type=list` — All orders as JSON
+- `GET /api/orders?key=ADMIN_KEY&type=csv` — Download orders CSV
 
-## Environment Variables
+## Environment Variables (Vercel)
 
 ```
-ADMIN_KEY=your-secret-key    # For CSV download access
+BLOB_READ_WRITE_TOKEN=   # Auto-injected by Vercel Blob store
+ADMIN_KEY=               # Secret key for admin API
+TELEGRAM_BOT_TOKEN=      # Telegram bot token
+TELEGRAM_CHAT_ID=        # Chat ID for notifications
 ```
+
+## Deployment
+
+Push to `main` → Vercel auto-deploys → live at telasourceph.com
 
 ## Coding Style
 
 - TypeScript strict mode
-- Tailwind CSS for styling
-- Mobile-first design (70%+ users on mobile)
-- Keep it simple — this is an MVP, avoid over-engineering
+- Tailwind CSS for styling (use theme colors, not raw hex)
+- Mobile-first design (70%+ users on mobile in PH)
+- Keep it simple — this is an MVP

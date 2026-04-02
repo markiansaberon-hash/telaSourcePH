@@ -1,4 +1,4 @@
-# FabricHub PH — Web App
+# TelaSource PH — Web App
 
 ## Setup
 
@@ -10,23 +10,26 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-## Google Sheets Integration
+## Environment Variables
 
-1. Create a Google Cloud project
-2. Enable the Google Sheets API
-3. Create a Service Account and download the JSON key
-4. Share your Google Sheet with the service account email (Editor access)
-5. Create a `.env.local` file:
+Copy `.env.example` to `.env.local` and fill in values:
 
 ```
-GOOGLE_SERVICE_ACCOUNT_EMAIL=your-service-account@project.iam.gserviceaccount.com
-GOOGLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
-GOOGLE_SHEET_ID=your-google-sheet-id-from-the-url
+ADMIN_KEY=your-secret-key
+BLOB_READ_WRITE_TOKEN=    # Get from Vercel Blob store
+TELEGRAM_BOT_TOKEN=       # From @BotFather on Telegram
+TELEGRAM_CHAT_ID=         # Your Telegram chat ID
 ```
+
+Note: `BLOB_READ_WRITE_TOKEN` is auto-injected when Vercel Blob store is connected to the project. For local development, run `vercel env pull` to get it.
 
 ## Deploy to Vercel
 
-1. Push this repo to GitHub
-2. Import in Vercel
-3. Add the environment variables above
-4. Deploy — done
+Push to GitHub → Vercel auto-deploys. Environment variables are set in Vercel dashboard.
+
+## Storage
+
+All data persists in **Vercel Blob** (not local filesystem):
+- `orders/{orderId}/info.json` — order details
+- `orders/{orderId}/upload.{ext}` — uploaded photo
+- `orders/log/{orderId}.json` — for listing/CSV export
