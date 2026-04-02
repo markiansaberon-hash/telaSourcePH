@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { upload } from "@vercel/blob/client";
 
 const CONTACT_METHODS = [
   "Viber",
@@ -143,28 +144,41 @@ export default function UploadPage() {
     setSubmitting(true);
 
     try {
-      const formData = new FormData();
-      formData.append("name", form.name);
-      formData.append("phone", form.phone);
-      formData.append("contactMethod", form.contactMethod);
-      formData.append(
-        "location",
-        form.location === "Other" ? form.locationOther.trim() : form.location,
-      );
-      formData.append("fabricList", form.fabricList);
-      formData.append("notes", form.notes);
-
+      // Step 1: Upload file to Vercel Blob (client upload) if present
+      let imageUrl = "";
       if (hasFile) {
-        formData.append("file", file);
+        const timestamp = Date.now();
+        const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+        const blob = await upload(
+          `orders/pending-${timestamp}/upload.${ext}`,
+          file,
+          {
+            access: "public",
+            handleUploadUrl: "/api/upload",
+          },
+        );
+        imageUrl = blob.url;
       }
 
-      if (hasStructuredItems) {
-        formData.append("fabricItems", JSON.stringify(filledItems));
-      }
-
+      // Step 2: Submit order data with image URL
       const res = await fetch("/api/submit", {
         method: "POST",
-        body: formData,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: form.name,
+          phone: form.phone,
+          contactMethod: form.contactMethod,
+          location:
+            form.location === "Other"
+              ? form.locationOther.trim()
+              : form.location,
+          fabricList: form.fabricList,
+          fabricItems: hasStructuredItems
+            ? JSON.stringify(filledItems)
+            : "",
+          notes: form.notes,
+          imageUrl,
+        }),
       });
 
       if (!res.ok) {
