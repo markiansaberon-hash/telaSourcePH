@@ -60,6 +60,7 @@ export default function UploadPage() {
   const [file, setFile] = useState<File | null>(null);
   const [filePreview, setFilePreview] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState("");
   const [error, setError] = useState("");
 
   function handleChange(
@@ -153,6 +154,7 @@ export default function UploadPage() {
       // Step 1: Upload file to Vercel Blob (client upload) if present
       let imageUrl = "";
       if (hasFile) {
+        setSubmitStatus("Uploading your photo...");
         const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
         const blob = await upload(
           `orders/${orderId}/upload.${ext}`,
@@ -166,6 +168,7 @@ export default function UploadPage() {
       }
 
       // Step 2: Submit order data with image URL and pre-generated order ID
+      setSubmitStatus("Sending your list...");
       const res = await fetch("/api/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -204,6 +207,7 @@ export default function UploadPage() {
       );
     } finally {
       setSubmitting(false);
+      setSubmitStatus("");
     }
   }
 
@@ -544,9 +548,30 @@ export default function UploadPage() {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full rounded-full bg-gradient-to-r from-primary to-accent px-6 py-4 text-lg font-bold text-cream shadow-[0_4px_20px_rgba(196,102,46,0.35)] transition hover:scale-[1.02] hover:shadow-[0_6px_30px_rgba(196,102,46,0.45)] disabled:cursor-not-allowed disabled:opacity-60"
+            className="flex w-full items-center justify-center gap-3 rounded-full bg-gradient-to-r from-primary to-accent px-6 py-4 text-lg font-bold text-cream shadow-[0_4px_20px_rgba(196,102,46,0.35)] transition hover:scale-[1.02] hover:shadow-[0_6px_30px_rgba(196,102,46,0.45)] disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {submitting ? "Submitting..." : "Submit My List"}
+            {submitting && (
+              <svg
+                className="h-5 w-5 animate-spin"
+                viewBox="0 0 24 24"
+                fill="none"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                />
+              </svg>
+            )}
+            {submitting ? (submitStatus || "Submitting...") : "Submit My List"}
           </button>
 
           <p className="text-center text-xs text-text-light">
