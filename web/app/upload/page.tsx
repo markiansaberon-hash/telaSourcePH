@@ -144,13 +144,18 @@ export default function UploadPage() {
     setSubmitting(true);
 
     try {
+      // Generate order ID upfront so file + data share the same folder
+      const now = new Date();
+      const dateStr = now.toISOString().slice(0, 10).replace(/-/g, "");
+      const rand = String(Math.floor(Math.random() * 999) + 1).padStart(3, "0");
+      const orderId = `TS-${dateStr}-${rand}`;
+
       // Step 1: Upload file to Vercel Blob (client upload) if present
       let imageUrl = "";
       if (hasFile) {
-        const timestamp = Date.now();
         const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
         const blob = await upload(
-          `orders/pending-${timestamp}/upload.${ext}`,
+          `orders/${orderId}/upload.${ext}`,
           file,
           {
             access: "public",
@@ -160,11 +165,12 @@ export default function UploadPage() {
         imageUrl = blob.url;
       }
 
-      // Step 2: Submit order data with image URL
+      // Step 2: Submit order data with image URL and pre-generated order ID
       const res = await fetch("/api/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          orderId,
           name: form.name,
           phone: form.phone,
           contactMethod: form.contactMethod,

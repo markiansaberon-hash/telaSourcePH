@@ -55,6 +55,7 @@ export async function POST(request: NextRequest) {
     }
 
     let body: {
+      orderId?: string;
       name?: string;
       phone?: string;
       contactMethod?: string;
@@ -114,8 +115,10 @@ export async function POST(request: NextRequest) {
     // Record attempt for rate limiting
     recordSubmission(ip);
 
-    // Generate order ID
-    const orderId = generateOrderId();
+    // Use client-provided order ID or generate one
+    const orderId = body.orderId && /^TS-\d{8}-\d{3}$/.test(body.orderId)
+      ? body.orderId
+      : generateOrderId();
     const dateSubmitted = new Date().toISOString();
 
     // Parse structured items
