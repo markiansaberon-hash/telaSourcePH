@@ -162,6 +162,41 @@ export async function POST(request: NextRequest) {
       { access: "public", contentType: "application/json" },
     );
 
+    // Send Telegram notification
+    const botToken = process.env.TELEGRAM_BOT_TOKEN;
+    const chatId = process.env.TELEGRAM_CHAT_ID;
+    if (botToken && chatId) {
+      const itemsList = parsedItems.length > 0
+        ? parsedItems.map((i) => `  - ${i.name} (${i.quantity} ${i.unit})`).join("\n")
+        : "";
+      const message = [
+        `📦 *New Order: ${orderId}*`,
+        ``,
+        `👤 *Name:* ${name}`,
+        `📱 *Phone:* ${phone}`,
+        `💬 *Contact via:* ${contactMethod}`,
+        `📍 *Location:* ${location}`,
+        fabricList ? `\n📋 *Fabric List:*\n${fabricList}` : "",
+        itemsList ? `\n📋 *Items:*\n${itemsList}` : "",
+        imageUrl ? `\n🖼 *Photo:* [View](${imageUrl})` : "",
+        notes ? `\n📝 *Notes:* ${notes}` : "",
+      ]
+        .filter(Boolean)
+        .join("\n");
+
+      fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text: message,
+          parse_mode: "Markdown",
+        }),
+      }).catch(() => {
+        // Don't block order submission if Telegram fails
+      });
+    }
+
     return NextResponse.json({ orderId });
   } catch {
     return NextResponse.json(
