@@ -70,7 +70,7 @@ function Footer() {
             <ul className="space-y-2 text-sm text-text-muted">
               <li>Monday – Saturday</li>
               <li>8:00 AM – 6:00 PM</li>
-              <li>Based in Manila, delivering across Luzon</li>
+              <li>Based in Manila, delivering across Luzon, Visayas, Mindanao</li>
             </ul>
           </div>
         </div>
