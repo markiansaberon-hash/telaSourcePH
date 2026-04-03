@@ -23,7 +23,7 @@ const LOCATIONS = [
   "Other",
 ];
 
-const UNITS = ["Rolls", "Yards", "Meters", "Pieces"];
+const UNITS = ["Rolls", "Yards", "Meters"];
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const ACCEPTED_TYPES = [
@@ -222,8 +222,9 @@ export default function UploadPage() {
             Submit Your Fabric List
           </h1>
           <p className="text-text-light">
-            Upload a photo, type your list, or add items one by one. We&apos;ll
-            get back to you within 24 hours with a quotation.
+            For bulk/wholesale orders only (by the roll). Upload a photo, type
+            your list, or add items one by one. We&apos;ll get back to you
+            within 24 hours with a quotation.
           </p>
         </div>
 

@@ -21,6 +21,7 @@ A B2B fabric sourcing platform for the Philippines. Customers submit their fabri
 | Styling | Tailwind CSS v4 | — |
 | Hosting | Vercel | Free |
 | File Storage | Vercel Blob | Free (256MB) |
+| Order Database | Google Sheets + Apps Script | Free |
 | Domain | Porkbun (`telasourceph.com`) | ~₱500/yr |
 | DNS + Email | Cloudflare (email routing) | Free |
 | Notifications | Telegram Bot | Free |
@@ -34,9 +35,14 @@ Customer visits telasourceph.com
     
 Customer submits order
     → File uploads to Vercel Blob (client upload, up to 10MB)
-    → Order data saves to Vercel Blob as JSON
+    → Order data saves to Vercel Blob (backup) + Google Sheets (source of truth)
     → Telegram bot notifies owner with full order details
     → Customer sees confirmation + reference number
+
+Admin manages orders at /admin
+    → Dashboard reads from Google Sheets
+    → Update status, add comments → writes to Sheets
+    → Team can also edit Sheets directly
 
 Email to orders@telasourceph.com
     → Cloudflare Email Routing → forwards to Gmail
@@ -57,9 +63,10 @@ Set in Vercel dashboard (Settings → Environment Variables):
 | Variable | Purpose |
 |----------|---------|
 | `BLOB_READ_WRITE_TOKEN` | Auto-injected by Vercel Blob store |
-| `ADMIN_KEY` | Secret key for admin orders API |
+| `ADMIN_KEY` | Secret key for admin dashboard + API |
 | `TELEGRAM_BOT_TOKEN` | Telegram bot token for order notifications |
 | `TELEGRAM_CHAT_ID` | Telegram chat ID to receive notifications |
+| `GOOGLE_SHEETS_WEBHOOK` | Apps Script web app URL for Sheets read/write |
 
 ## API Endpoints
 
@@ -67,8 +74,11 @@ Set in Vercel dashboard (Settings → Environment Variables):
 |----------|--------|---------|
 | `/api/submit` | POST | Submit an order (JSON body) |
 | `/api/upload` | POST | Client upload handler for Vercel Blob |
-| `/api/orders?key=KEY&type=list` | GET | List all orders (JSON) |
-| `/api/orders?key=KEY&type=csv` | GET | Download orders as CSV |
+| `/api/admin/auth` | POST | Admin login (sets cookie) |
+| `/api/admin/orders` | GET | Fetch orders from Sheets (cookie auth) |
+| `/api/admin/update-status` | POST | Update order status (cookie auth) |
+| `/api/admin/add-comment` | POST | Add comment to order (cookie auth) |
+| `/admin` | — | Admin dashboard (list + kanban views) |
 
 ## Project Files
 

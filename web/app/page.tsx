@@ -30,8 +30,8 @@ function HeroSection() {
           </span>
         </h1>
         <p className="animate-fade-in-up animate-delay-200 mx-auto mb-10 max-w-2xl text-base text-text-muted md:text-lg">
-          Skip the hassle of going to Divisoria. We source from 50+ suppliers,
-          get you the best prices, and deliver fast — all from your phone.
+          Bulk fabric orders made easy. We source from 50+ Divisoria suppliers,
+          get you the best wholesale prices, and deliver fast — all from your phone.
         </p>
         <Link
           href="/upload"
@@ -64,7 +64,7 @@ function HowItWorksSection() {
         </svg>
       ),
       title: "We Source It",
-      description: "Our team compares prices across 50+ trusted Divisoria suppliers and negotiates the best deal for you. Less hassle, better prices.",
+      description: "Our team compares wholesale prices across 50+ trusted Divisoria suppliers and negotiates the best bulk deal for you. Less hassle, better prices.",
     },
     {
       number: "3",
@@ -135,7 +135,7 @@ function BenefitsSection() {
         </svg>
       ),
       title: "Best Prices",
-      description: "We source the best price across 50+ suppliers and negotiate bulk rates you won't get on your own.",
+      description: "We source the best wholesale price across 50+ suppliers and negotiate bulk rates by the roll you won't get on your own.",
     },
     {
       icon: (
