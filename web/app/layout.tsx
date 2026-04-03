@@ -68,8 +68,8 @@ function Footer() {
           <div>
             <h4 className="mb-3 font-semibold">Hours</h4>
             <ul className="space-y-2 text-sm text-text-muted">
-              <li>Monday – Saturday</li>
-              <li>8:00 AM – 6:00 PM</li>
+              <li>Monday – Sunday</li>
+              <li>8:00 AM – 5:00 PM</li>
               <li>Based in Manila, delivering across Luzon, Visayas, Mindanao</li>
             </ul>
           </div>

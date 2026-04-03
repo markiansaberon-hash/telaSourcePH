@@ -273,8 +273,8 @@ function ContactSection() {
                 </svg>
               </div>
               <h3 className="mb-2 text-lg font-bold text-text">Business Hours</h3>
-              <p className="text-sm text-text-light">Monday – Saturday</p>
-              <p className="text-sm text-text-light">8:00 AM – 6:00 PM</p>
+              <p className="text-sm text-text-light">Monday – Sunday</p>
+              <p className="text-sm text-text-light">8:00 AM – 5:00 PM</p>
             </div>
           </ScrollReveal>
         </div>
