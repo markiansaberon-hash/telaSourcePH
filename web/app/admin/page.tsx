@@ -73,7 +73,7 @@ export default function AdminPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState("All");
-  const [view, setView] = useState<"list" | "kanban">("list");
+  const [view, setView] = useState<"list" | "kanban" | "gallery">("list");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [commentText, setCommentText] = useState("");
   const [saving, setSaving] = useState(false);
@@ -82,6 +82,8 @@ export default function AdminPage() {
   const [editingNotesId, setEditingNotesId] = useState<string | null>(null);
   const [editedNotesText, setEditedNotesText] = useState("");
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [galleryUploading, setGalleryUploading] = useState(false);
+  const [galleryUrl, setGalleryUrl] = useState("");
 
   const fetchOrders = useCallback(async () => {
     try {
@@ -251,6 +253,32 @@ export default function AdminPage() {
     }
   }
 
+  async function uploadGalleryImage(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setGalleryUploading(true);
+    setGalleryUrl("");
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/admin/upload-gallery", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.url) {
+        setGalleryUrl(data.url);
+      } else {
+        alert(data.error || "Upload failed");
+      }
+    } catch {
+      alert("Upload failed");
+    } finally {
+      setGalleryUploading(false);
+      e.target.value = "";
+    }
+  }
+
   const filteredOrders =
     filter === "All" ? orders : orders.filter((o) => o.status === filter);
 
@@ -328,6 +356,12 @@ export default function AdminPage() {
                 className={`rounded-md px-3 py-1.5 text-xs font-semibold transition ${view === "kanban" ? "bg-white text-text shadow-sm" : "text-text-light"}`}
               >
                 Kanban
+              </button>
+              <button
+                onClick={() => setView("gallery")}
+                className={`rounded-md px-3 py-1.5 text-xs font-semibold transition ${view === "gallery" ? "bg-white text-text shadow-sm" : "text-text-light"}`}
+              >
+                Gallery
               </button>
             </div>
             <button
@@ -652,6 +686,79 @@ export default function AdminPage() {
                 )}
               </div>
             ))}
+          </div>
+        )}
+
+        {/* GALLERY UPLOAD */}
+        {view === "gallery" && (
+          <div className="rounded-xl bg-white p-6 shadow-[0_1px_4px_rgba(44,24,16,0.06)]">
+            <h2 className="mb-4 text-lg font-bold text-text">Gallery Image Upload</h2>
+            <p className="mb-4 text-sm text-text-light">
+              Upload an image, copy the URL, then paste it into the <strong>Image URL</strong> column
+              in your Google Sheets &quot;Fabrics&quot; tab.
+            </p>
+
+            <div className="mb-6">
+              <label className="block">
+                <span className="mb-1.5 block text-sm font-semibold text-text">
+                  Choose Image
+                </span>
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  onChange={uploadGalleryImage}
+                  disabled={galleryUploading}
+                  className="w-full text-sm text-text-light file:mr-3 file:rounded-lg file:border-0 file:bg-primary file:px-4 file:py-2 file:text-sm file:font-semibold file:text-cream file:transition hover:file:bg-primary-dark disabled:opacity-60"
+                />
+              </label>
+              {galleryUploading && (
+                <p className="mt-2 text-sm text-text-muted">Uploading...</p>
+              )}
+            </div>
+
+            {galleryUrl && (
+              <div className="rounded-lg border border-green-200 bg-green-50 p-4">
+                <p className="mb-2 text-sm font-semibold text-green-800">Image uploaded!</p>
+                <div className="mb-3">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={galleryUrl}
+                    alt="Uploaded"
+                    className="max-h-48 rounded-lg border border-cream-dark"
+                  />
+                </div>
+                <p className="mb-1 text-xs font-semibold text-text-muted">Copy this URL to Google Sheets:</p>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    readOnly
+                    value={galleryUrl}
+                    className="flex-1 rounded-lg border border-[#D4C4B0] bg-white px-3 py-2 text-xs text-text"
+                    onClick={(e) => (e.target as HTMLInputElement).select()}
+                  />
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(galleryUrl);
+                    }}
+                    className="rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-cream transition hover:bg-primary-dark"
+                  >
+                    Copy
+                  </button>
+                </div>
+              </div>
+            )}
+
+            <div className="mt-6 rounded-lg bg-cream p-4">
+              <p className="mb-2 text-sm font-semibold text-text">How it works:</p>
+              <ol className="list-inside list-decimal space-y-1 text-sm text-text-light">
+                <li>Upload an image above</li>
+                <li>Copy the generated URL</li>
+                <li>Open your Google Sheet → &quot;Fabrics&quot; tab</li>
+                <li>Paste the URL in the <strong>Image URL</strong> column (C)</li>
+                <li>Set <strong>Category</strong> to &quot;fabric&quot; or &quot;shop&quot;</li>
+                <li>Set <strong>Active</strong> to TRUE</li>
+              </ol>
+            </div>
           </div>
         )}
 
