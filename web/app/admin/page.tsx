@@ -14,6 +14,7 @@ interface Order {
   notes: string;
   status: string;
   comments: string;
+  fabricNotes: string;
 }
 
 const STATUSES = [
@@ -76,6 +77,11 @@ export default function AdminPage() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [commentText, setCommentText] = useState("");
   const [saving, setSaving] = useState(false);
+  const [editingFabricId, setEditingFabricId] = useState<string | null>(null);
+  const [editedFabricText, setEditedFabricText] = useState("");
+  const [editingNotesId, setEditingNotesId] = useState<string | null>(null);
+  const [editedNotesText, setEditedNotesText] = useState("");
+  const [deleting, setDeleting] = useState<string | null>(null);
 
   const fetchOrders = useCallback(async () => {
     try {
@@ -182,6 +188,66 @@ export default function AdminPage() {
       // Fail silently
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function saveFabricList(orderId: string) {
+    setSaving(true);
+    try {
+      await fetch("/api/admin/update-fabric-list", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId, fabricList: editedFabricText }),
+      });
+      setOrders((prev) =>
+        prev.map((o) =>
+          o.orderId === orderId ? { ...o, fabricListText: editedFabricText } : o,
+        ),
+      );
+      setEditingFabricId(null);
+    } catch {
+      // Fail silently
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function saveFabricNotes(orderId: string) {
+    setSaving(true);
+    try {
+      await fetch("/api/admin/update-fabric-notes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId, fabricNotes: editedNotesText }),
+      });
+      setOrders((prev) =>
+        prev.map((o) =>
+          o.orderId === orderId ? { ...o, fabricNotes: editedNotesText } : o,
+        ),
+      );
+      setEditingNotesId(null);
+    } catch {
+      // Fail silently
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function deleteOrder(orderId: string) {
+    if (!window.confirm(`Delete order ${orderId}? This cannot be undone.`)) return;
+    setDeleting(orderId);
+    try {
+      await fetch("/api/admin/delete-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId }),
+      });
+      setOrders((prev) => prev.filter((o) => o.orderId !== orderId));
+      setExpandedId(null);
+    } catch {
+      // Fail silently
+    } finally {
+      setDeleting(null);
     }
   }
 
@@ -382,16 +448,53 @@ export default function AdminPage() {
                             {formatDate(order.dateSubmitted)}
                           </p>
                         </div>
-                        {order.fabricListText && (
-                          <div>
+                        <div>
+                          <div className="flex items-center justify-between">
                             <p className="text-xs font-semibold uppercase text-text-muted">
                               Fabric List
                             </p>
-                            <p className="whitespace-pre-wrap text-sm text-text">
-                              {order.fabricListText}
-                            </p>
+                            {editingFabricId !== order.orderId && (
+                              <button
+                                onClick={() => {
+                                  setEditingFabricId(order.orderId);
+                                  setEditedFabricText(order.fabricListText || "");
+                                }}
+                                className="text-xs text-primary transition hover:text-primary-dark"
+                              >
+                                Edit
+                              </button>
+                            )}
                           </div>
-                        )}
+                          {editingFabricId === order.orderId ? (
+                            <div className="mt-1">
+                              <textarea
+                                value={editedFabricText}
+                                onChange={(e) => setEditedFabricText(e.target.value)}
+                                rows={5}
+                                className="w-full rounded-lg border border-[#D4C4B0] px-3 py-2 text-sm text-text focus:border-primary focus:outline-none"
+                              />
+                              <div className="mt-1 flex gap-2">
+                                <button
+                                  onClick={() => saveFabricList(order.orderId)}
+                                  disabled={saving}
+                                  className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-cream transition hover:bg-primary-dark disabled:opacity-60"
+                                >
+                                  Save
+                                </button>
+                                <button
+                                  onClick={() => setEditingFabricId(null)}
+                                  className="rounded-lg px-3 py-1.5 text-xs text-text-light transition hover:bg-cream-dark"
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <p className="whitespace-pre-wrap text-sm text-text">
+                              {order.fabricListText || "—"}
+                            </p>
+                          )}
+                        </div>
                         {order.imageUrl && (
                           <div>
                             <p className="text-xs font-semibold uppercase text-text-muted">
@@ -420,6 +523,56 @@ export default function AdminPage() {
                             <p className="text-sm text-text">{order.notes}</p>
                           </div>
                         )}
+
+                        {/* Admin Fabric Notes */}
+                        <div className="rounded-lg bg-amber-50 p-3">
+                          <div className="flex items-center justify-between">
+                            <p className="text-xs font-semibold uppercase text-amber-700">
+                              Fabric Notes (Admin)
+                            </p>
+                            {editingNotesId !== order.orderId && (
+                              <button
+                                onClick={() => {
+                                  setEditingNotesId(order.orderId);
+                                  setEditedNotesText(order.fabricNotes || "");
+                                }}
+                                className="text-xs text-primary transition hover:text-primary-dark"
+                              >
+                                Edit
+                              </button>
+                            )}
+                          </div>
+                          {editingNotesId === order.orderId ? (
+                            <div className="mt-1">
+                              <textarea
+                                value={editedNotesText}
+                                onChange={(e) => setEditedNotesText(e.target.value)}
+                                rows={4}
+                                placeholder="e.g. Oxford White (25 rolls): 15 from Supplier A @ PHP 10, 10 from Supplier B @ PHP 12.5"
+                                className="w-full rounded-lg border border-amber-200 bg-white px-3 py-2 text-sm text-text focus:border-primary focus:outline-none"
+                              />
+                              <div className="mt-1 flex gap-2">
+                                <button
+                                  onClick={() => saveFabricNotes(order.orderId)}
+                                  disabled={saving}
+                                  className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-cream transition hover:bg-primary-dark disabled:opacity-60"
+                                >
+                                  Save
+                                </button>
+                                <button
+                                  onClick={() => setEditingNotesId(null)}
+                                  className="rounded-lg px-3 py-1.5 text-xs text-text-light transition hover:bg-cream-dark"
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <p className="mt-1 whitespace-pre-wrap text-sm text-text">
+                              {order.fabricNotes || "No notes yet"}
+                            </p>
+                          )}
+                        </div>
                       </div>
 
                       {/* Right: Status + Comments */}
@@ -484,6 +637,16 @@ export default function AdminPage() {
                           </div>
                         </div>
                       </div>
+                    </div>
+                    {/* Delete Order */}
+                    <div className="mt-4 flex justify-end border-t border-cream-dark pt-3">
+                      <button
+                        onClick={() => deleteOrder(order.orderId)}
+                        disabled={deleting === order.orderId}
+                        className="rounded-lg px-3 py-1.5 text-xs text-red-600 transition hover:bg-red-50 disabled:opacity-60"
+                      >
+                        {deleting === order.orderId ? "Deleting..." : "Delete Order"}
+                      </button>
                     </div>
                   </div>
                 )}

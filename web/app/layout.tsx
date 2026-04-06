@@ -30,6 +30,12 @@ function Header() {
             Contact Us
           </Link>
           <Link
+            href="/gallery"
+            className="hidden text-sm text-text-light transition hover:text-primary sm:block"
+          >
+            Gallery
+          </Link>
+          <Link
             href="/upload"
             className="rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-cream transition hover:bg-primary-dark"
           >
@@ -53,15 +59,26 @@ function Footer() {
             <p className="text-sm text-text-muted">
               Fabric sourcing made easy. Send your list, we do the rest.
             </p>
-            <p className="mt-2 text-sm text-accent">
-              Shop 4210, Divisoria, Manila
-            </p>
+            <a
+              href="https://maps.app.goo.gl/LZMX8ichNB4nTyEBA"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-2 inline-block text-sm text-accent underline transition hover:text-primary"
+            >
+              Shop 4110, Divisoria, Manila
+            </a>
           </div>
           <div>
             <h4 className="mb-3 font-semibold">Contact Us</h4>
             <ul className="space-y-2 text-sm text-text-muted">
               <li>Call / Viber / Text: 0917 328 7704</li>
-              <li>Facebook: /telasourceph</li>
+              <li>
+                Facebook:{" "}
+                <a href="https://www.facebook.com/4110textilefabric" target="_blank" rel="noopener noreferrer" className="underline transition hover:text-primary">/4110textilefabric</a>
+              </li>
+              <li>
+                <a href="https://www.facebook.com/telasourcePH" target="_blank" rel="noopener noreferrer" className="underline transition hover:text-primary">/telasourcePH</a>
+              </li>
               <li>Email: orders@telasourceph.com</li>
             </ul>
           </div>

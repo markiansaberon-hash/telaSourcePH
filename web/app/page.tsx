@@ -249,8 +249,15 @@ function ContactSection() {
                 </svg>
               </div>
               <h3 className="mb-2 text-lg font-bold text-text">Our Shop</h3>
-              <p className="text-lg font-bold text-accent">4210</p>
-              <p className="text-sm text-text-light">Divisoria, Manila</p>
+              <a
+                href="https://maps.app.goo.gl/LZMX8ichNB4nTyEBA"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-lg font-bold text-accent underline transition hover:text-primary"
+              >
+                Shop 4110, Divisoria
+              </a>
+              <p className="text-sm text-text-light">Manila</p>
             </div>
           </ScrollReveal>
           <ScrollReveal delay={100}>
