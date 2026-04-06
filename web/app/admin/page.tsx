@@ -84,6 +84,23 @@ export default function AdminPage() {
   const [deleting, setDeleting] = useState<string | null>(null);
   const [galleryUploading, setGalleryUploading] = useState(false);
   const [galleryUrl, setGalleryUrl] = useState("");
+  const [galleryImages, setGalleryImages] = useState<{ url: string; pathname: string; uploadedAt: string; size: number }[]>([]);
+  const [galleryLoading, setGalleryLoading] = useState(false);
+
+  const fetchGalleryImages = useCallback(async () => {
+    setGalleryLoading(true);
+    try {
+      const res = await fetch("/api/admin/gallery-images");
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data)) setGalleryImages(data);
+      }
+    } catch {
+      // Fail silently
+    } finally {
+      setGalleryLoading(false);
+    }
+  }, []);
 
   const fetchOrders = useCallback(async () => {
     try {
@@ -117,6 +134,13 @@ export default function AdminPage() {
     const interval = setInterval(fetchOrders, 60000);
     return () => clearInterval(interval);
   }, [authed, fetchOrders]);
+
+  // Load gallery images when gallery view is active
+  useEffect(() => {
+    if (authed && view === "gallery") {
+      fetchGalleryImages();
+    }
+  }, [authed, view, fetchGalleryImages]);
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -268,6 +292,7 @@ export default function AdminPage() {
       const data = await res.json();
       if (data.url) {
         setGalleryUrl(data.url);
+        fetchGalleryImages();
       } else {
         alert(data.error || "Upload failed");
       }
@@ -758,6 +783,57 @@ export default function AdminPage() {
                 <li>Set <strong>Category</strong> to &quot;fabric&quot; or &quot;shop&quot;</li>
                 <li>Set <strong>Active</strong> to TRUE</li>
               </ol>
+            </div>
+
+            {/* Uploaded Images */}
+            <div className="mt-6">
+              <h3 className="mb-3 text-sm font-bold text-text">
+                Uploaded Images ({galleryImages.length})
+              </h3>
+              {galleryLoading ? (
+                <p className="text-sm text-text-muted">Loading...</p>
+              ) : galleryImages.length === 0 ? (
+                <p className="text-sm text-text-muted">No images uploaded yet.</p>
+              ) : (
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {galleryImages.map((img) => (
+                    <div
+                      key={img.url}
+                      className="overflow-hidden rounded-lg border border-cream-dark bg-cream"
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={img.url}
+                        alt={img.pathname}
+                        className="aspect-[4/3] w-full object-cover"
+                      />
+                      <div className="p-3">
+                        <p className="mb-1 truncate text-xs text-text-muted">
+                          {img.pathname}
+                        </p>
+                        <p className="mb-2 text-xs text-text-muted">
+                          {(img.size / 1024).toFixed(0)} KB · {new Date(img.uploadedAt).toLocaleDateString("en-PH")}
+                        </p>
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            readOnly
+                            value={img.url}
+                            className="min-w-0 flex-1 rounded border border-[#D4C4B0] bg-white px-2 py-1 text-xs text-text"
+                            onClick={(e) => (e.target as HTMLInputElement).select()}
+                          />
+                          <button
+                            onClick={() => navigator.clipboard.writeText(img.url)}
+                            className="shrink-0 rounded bg-primary px-2 py-1 text-xs font-semibold text-cream transition hover:bg-primary-dark"
+                          >
+                            Copy
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         )}
