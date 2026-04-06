@@ -351,6 +351,9 @@ export default function UploadPage() {
               </a>{" "}
               for available fabrics and prices.
             </p>
+            <p className="mt-1 text-xs text-text-muted">
+              Prices are estimates and subject to change. Final quote confirmed via Viber/text. Delivery fee computed separately.
+            </p>
           </div>
 
           {/* File Upload */}
