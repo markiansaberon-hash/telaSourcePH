@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import MobileMenu from "./components/mobile-menu";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -10,7 +11,7 @@ export const metadata: Metadata = {
 
 function Header() {
   return (
-    <header className="border-b border-cream-dark bg-white">
+    <header className="relative border-b border-cream-dark bg-white">
       <nav className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
         <Link href="/" className="text-xl font-bold text-text">
           TelaSource
@@ -35,6 +36,7 @@ function Header() {
           >
             Gallery
           </Link>
+          <MobileMenu />
           <Link
             href="/upload"
             className="rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-cream transition hover:bg-primary-dark"
