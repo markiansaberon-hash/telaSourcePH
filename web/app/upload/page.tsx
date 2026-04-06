@@ -344,6 +344,13 @@ export default function UploadPage() {
                 (use any method below)
               </span>
             </p>
+            <p className="mt-1 text-sm text-text-light">
+              Need ideas?{" "}
+              <a href="/gallery" className="font-semibold text-primary underline transition hover:text-primary-dark">
+                Browse our Gallery
+              </a>{" "}
+              for available fabrics and prices.
+            </p>
           </div>
 
           {/* File Upload */}
