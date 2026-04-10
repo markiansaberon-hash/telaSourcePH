@@ -74,11 +74,18 @@ Set in Vercel dashboard (Settings → Environment Variables):
 |----------|--------|---------|
 | `/api/submit` | POST | Submit an order (JSON body) |
 | `/api/upload` | POST | Client upload handler for Vercel Blob |
+| `/api/fabrics` | GET | Fetch fabric catalog from Sheets (public, 5min cache) |
 | `/api/admin/auth` | POST | Admin login (sets cookie) |
 | `/api/admin/orders` | GET | Fetch orders from Sheets (cookie auth) |
 | `/api/admin/update-status` | POST | Update order status (cookie auth) |
 | `/api/admin/add-comment` | POST | Add comment to order (cookie auth) |
-| `/admin` | — | Admin dashboard (list + kanban views) |
+| `/api/admin/update-fabric-list` | POST | Edit fabric list (cookie auth) |
+| `/api/admin/update-fabric-notes` | POST | Edit admin fabric notes (cookie auth) |
+| `/api/admin/delete-order` | POST | Delete order (cookie auth) |
+| `/api/admin/upload-gallery` | POST | Upload gallery image to Blob (cookie auth) |
+| `/api/admin/gallery-images` | GET | List gallery images from Blob (cookie auth) |
+| `/admin` | — | Admin dashboard (list + kanban + gallery upload) |
+| `/gallery` | — | Fabric catalog with prices + shop photos |
 
 ## Project Files
 
@@ -106,4 +113,5 @@ Set in Vercel dashboard (Settings → Environment Variables):
 
 - Phone: 0917 328 7704
 - Email: orders@telasourceph.com
-- Shop: 4210, Divisoria, Manila
+- Shop: 4110, Divisoria, Manila
+- Facebook: /4110textilefabric, /telasourcePH

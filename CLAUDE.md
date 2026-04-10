@@ -50,26 +50,34 @@ TelaSourcePH/
 │   └── plans/                   # Implementation plans
 └── web/                         # Next.js application
     ├── app/
-    │   ├── layout.tsx           # Header + footer + font imports
+    │   ├── layout.tsx           # Header + footer + fonts + mobile menu
     │   ├── globals.css          # Tailwind theme (Modern Warmth palette)
     │   ├── page.tsx             # Homepage (6 sections)
     │   ├── upload/page.tsx      # Order form (3 input methods)
+    │   ├── gallery/page.tsx     # Gallery (fabrics w/ prices + shop photos from Sheets)
     │   ├── thank-you/page.tsx   # Confirmation page
     │   ├── admin/
     │   │   ├── layout.tsx       # Admin layout (noindex, no public nav)
-    │   │   └── page.tsx         # Admin dashboard (list + kanban views)
+    │   │   └── page.tsx         # Admin dashboard (list + kanban + gallery upload)
     │   ├── components/
-    │   │   └── scroll-reveal.tsx # Scroll-triggered animation wrapper
+    │   │   ├── scroll-reveal.tsx  # Scroll-triggered animation wrapper
+    │   │   └── mobile-menu.tsx    # Hamburger menu for mobile nav
     │   └── api/
     │       ├── submit/route.ts  # Order submission → Blob + Sheets + Telegram
     │       ├── upload/route.ts  # Client file upload handler (Vercel Blob)
+    │       ├── fabrics/route.ts # Public: fetch fabric catalog from Sheets (5min cache)
     │       ├── orders/route.ts  # Legacy: list orders from Blob
     │       └── admin/
-    │           ├── auth/route.ts          # Login (sets cookie)
-    │           ├── logout/route.ts        # Logout (clears cookie)
-    │           ├── orders/route.ts        # Fetch orders from Sheets
-    │           ├── update-status/route.ts # Update order status in Sheets
-    │           └── add-comment/route.ts   # Add comment to order in Sheets
+    │           ├── auth/route.ts              # Login (sets cookie)
+    │           ├── logout/route.ts            # Logout (clears cookie)
+    │           ├── orders/route.ts            # Fetch orders from Sheets
+    │           ├── update-status/route.ts     # Update order status in Sheets
+    │           ├── add-comment/route.ts       # Add comment to order in Sheets
+    │           ├── update-fabric-list/route.ts  # Edit fabric list in Sheets
+    │           ├── update-fabric-notes/route.ts # Edit admin fabric notes in Sheets
+    │           ├── delete-order/route.ts      # Delete order from Sheets
+    │           ├── upload-gallery/route.ts    # Upload gallery image to Vercel Blob
+    │           └── gallery-images/route.ts    # List uploaded gallery images from Blob
     ├── package.json
     ├── .env.example
     └── .gitignore
@@ -93,8 +101,10 @@ Warm Filipino tindahan personality + modern clean execution.
 - **3 input methods**: Photo upload (up to 10MB), text list, or structured item-by-item
 - **Vercel Blob storage**: Files as blobs, order JSON as backup — persistent across deploys
 - **Google Sheets**: Source of truth for order data — read/write via Apps Script
-- **Admin dashboard**: `/admin` — list view with expandable details, kanban view, status updates, internal comments
-- **Telegram notifications**: Instant push notification on new order with full details
+- **Admin dashboard**: `/admin` — list view, kanban view, gallery upload, status updates, editable fabric list, admin fabric notes, delete orders, internal comments
+- **Gallery page**: `/gallery` — fabric catalog with prices + shop photos, fetched from Google Sheets "Fabrics" tab
+- **Mobile hamburger menu**: Navigation links visible on all screen sizes
+- **Telegram notifications**: Instant push to group chat on new order
 - **Scroll animations**: Intersection Observer + CSS keyframes
 - **Email**: orders@telasourceph.com → forwards to Gmail via Cloudflare
 
@@ -111,7 +121,11 @@ Customer submits order at /upload
 Admin manages orders at /admin
   → Dashboard reads from Google Sheets via Apps Script
   → Update status → writes to Google Sheets
+  → Edit fabric list → writes to Google Sheets
+  → Add admin fabric notes (supplier/price) → writes to Google Sheets
   → Add comment → writes to Google Sheets
+  → Delete order → removes row from Google Sheets
+  → Upload gallery images → Vercel Blob
   → Team can also edit Google Sheets directly
 ```
 
@@ -120,6 +134,7 @@ Admin manages orders at /admin
 ### Public
 - `POST /api/submit` — Submit order (JSON body with optional imageUrl)
 - `POST /api/upload` — Client upload handler for Vercel Blob
+- `GET /api/fabrics` — Fetch fabric catalog from Sheets "Fabrics" tab (public, 5min cache)
 
 ### Admin (cookie auth required)
 - `POST /api/admin/auth` — Login, sets HTTP-only cookie (24hr)
@@ -127,6 +142,11 @@ Admin manages orders at /admin
 - `GET /api/admin/orders` — Fetch all orders from Google Sheets
 - `POST /api/admin/update-status` — Update order status in Sheets
 - `POST /api/admin/add-comment` — Add timestamped comment in Sheets
+- `POST /api/admin/update-fabric-list` — Edit fabric list text in Sheets
+- `POST /api/admin/update-fabric-notes` — Edit admin fabric notes in Sheets
+- `POST /api/admin/delete-order` — Delete order row from Sheets
+- `POST /api/admin/upload-gallery` — Upload gallery image to Vercel Blob
+- `GET /api/admin/gallery-images` — List all uploaded gallery images from Blob
 
 ### Legacy
 - `GET /api/orders?key=ADMIN_KEY&type=list` — Orders from Vercel Blob (JSON)
@@ -134,7 +154,7 @@ Admin manages orders at /admin
 
 ## Google Sheets Structure
 
-Sheet: "TelaSource Orders" (Sheet1)
+### Tab: "Orders" (was "Sheet1")
 
 | Col | Header | Notes |
 |-----|--------|-------|
@@ -144,19 +164,35 @@ Sheet: "TelaSource Orders" (Sheet1)
 | D | Phone | 09XXXXXXXXX |
 | E | Contact Via | Viber/WhatsApp/Messenger/Text/Line |
 | F | Location | Manila/Bulacan/etc. |
-| G | Fabric List | Free text |
+| G | Fabric List | Free text (editable from admin) |
 | H | Image URL | Vercel Blob URL |
 | I | Notes | Customer notes |
 | J | Status | New/In Progress/Ready/Delivered/Paid/Cancelled |
 | K | Comments | Timestamped internal comments |
+| L | Fabric Notes | Admin-only: supplier names, prices, sourcing notes |
+
+### Tab: "Fabrics" (gallery catalog)
+
+| Col | Header | Notes |
+|-----|--------|-------|
+| A | Name | Fabric or photo name |
+| B | Price | e.g. "PHP 120/yard" |
+| C | Image URL | Vercel Blob or Google Drive URL |
+| D | Category | "fabric" or "shop" |
+| E | Caption | Optional caption (for shop photos) |
+| F | Active | TRUE/FALSE — hides item when FALSE |
 
 ## Apps Script
 
 URL stored in `GOOGLE_SHEETS_WEBHOOK` env var. Handles:
-- `doGet(?key=)` — Returns all orders as JSON
+- `doGet(?action=fabrics)` — Returns active items from "Fabrics" tab (public, no key)
+- `doGet(?key=)` — Returns all orders from "Orders" tab as JSON
 - `doPost(action: newOrder)` — Appends new order row
 - `doPost(action: updateStatus)` — Updates status column (J)
 - `doPost(action: addComment)` — Prepends timestamped comment to column (K)
+- `doPost(action: updateFabricList)` — Updates fabric list column (G)
+- `doPost(action: updateFabricNotes)` — Updates admin fabric notes column (L)
+- `doPost(action: deleteOrder)` — Deletes order row
 
 Admin key must be set in Apps Script → Project Settings → Script Properties → `ADMIN_KEY`
 
