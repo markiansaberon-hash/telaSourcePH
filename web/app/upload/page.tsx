@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { upload } from "@vercel/blob/client";
+import GalleryModal from "../components/gallery-modal";
 
 const CONTACT_METHODS = [
   "Viber",
@@ -62,6 +63,7 @@ export default function UploadPage() {
   const [submitting, setSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState("");
   const [error, setError] = useState("");
+  const [galleryOpen, setGalleryOpen] = useState(false);
 
   function handleChange(
     e: React.ChangeEvent<
@@ -346,9 +348,13 @@ export default function UploadPage() {
             </p>
             <p className="mt-1 text-sm text-text-light">
               Need ideas?{" "}
-              <a href="/gallery" className="font-semibold text-primary underline transition hover:text-primary-dark">
+              <button
+                type="button"
+                onClick={() => setGalleryOpen(true)}
+                className="font-semibold text-primary underline transition hover:text-primary-dark"
+              >
                 Browse our Gallery
-              </a>{" "}
+              </button>{" "}
               for available fabrics and prices.
             </p>
             <p className="mt-1 text-xs text-text-muted">
@@ -591,6 +597,8 @@ export default function UploadPage() {
           </p>
         </form>
       </div>
+
+      <GalleryModal open={galleryOpen} onClose={() => setGalleryOpen(false)} />
     </section>
   );
 }
