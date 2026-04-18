@@ -154,6 +154,7 @@ export default function AdminPage() {
   const [galleryErrors, setGalleryErrors] = useState<string[]>([]);
   const [galleryImages, setGalleryImages] = useState<{ url: string; pathname: string; uploadedAt: string; size: number }[]>([]);
   const [galleryLoading, setGalleryLoading] = useState(false);
+  const [deletingUrl, setDeletingUrl] = useState<string | null>(null);
 
   const fetchGalleryImages = useCallback(async () => {
     setGalleryLoading(true);
@@ -387,6 +388,29 @@ export default function AdminPage() {
       setGalleryUploading(false);
       setGalleryProgress("");
       e.target.value = "";
+    }
+  }
+
+  async function deleteGalleryImage(url: string) {
+    if (!confirm("Delete this image from storage? This cannot be undone.")) return;
+    setDeletingUrl(url);
+    try {
+      const res = await fetch("/api/admin/delete-gallery-image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setGalleryImages((prev) => prev.filter((img) => img.url !== url));
+        setGalleryResults((prev) => prev.filter((r) => r.url !== url));
+      } else {
+        alert(data.error || "Delete failed");
+      }
+    } catch {
+      alert("Delete failed");
+    } finally {
+      setDeletingUrl(null);
     }
   }
 
@@ -952,6 +976,13 @@ export default function AdminPage() {
                             className="shrink-0 rounded bg-primary px-2 py-1 text-xs font-semibold text-cream transition hover:bg-primary-dark"
                           >
                             Copy
+                          </button>
+                          <button
+                            onClick={() => deleteGalleryImage(img.url)}
+                            disabled={deletingUrl === img.url}
+                            className="shrink-0 rounded border border-red-300 px-2 py-1 text-xs font-semibold text-red-600 transition hover:bg-red-50 disabled:opacity-60"
+                          >
+                            {deletingUrl === img.url ? "..." : "Delete"}
                           </button>
                         </div>
                       </div>
