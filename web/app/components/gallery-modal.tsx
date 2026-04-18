@@ -97,6 +97,17 @@ export default function GalleryModal({ open, onClose }: GalleryModalProps) {
 
         {/* Content */}
         <div className="px-6 py-6">
+          <a
+            href="/gallery"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mb-6 flex items-center justify-between gap-3 rounded-lg border border-primary/20 bg-primary/5 px-4 py-3 transition hover:bg-primary/10"
+          >
+            <span className="text-sm font-semibold text-primary">
+              Open full gallery with fabric photos &rarr;
+            </span>
+            <span className="text-xs text-text-muted">Opens in new tab</span>
+          </a>
           {loading ? (
             <div className="py-12 text-center">
               <p className="text-text-muted">Loading...</p>
