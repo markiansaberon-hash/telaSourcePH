@@ -160,6 +160,7 @@ export default function GalleryPage() {
 
   const fabrics = items.filter((i) => i.category === "fabric");
   const saleFabrics = fabrics.filter((f) => f.sale_price && String(f.sale_price).trim() !== "");
+  const regularFabrics = fabrics.filter((f) => !f.sale_price || String(f.sale_price).trim() === "");
   const shopPhotos = items.filter((i) => i.category === "shop");
 
   const openLightbox = (images: string[], index: number, alt: string) =>
@@ -204,29 +205,39 @@ export default function GalleryPage() {
         </section>
       )}
 
-      {/* Our Fabrics */}
-      <section className="mb-16">
-        <ScrollReveal>
-          <h2 className="mb-6 text-2xl font-bold text-text">Our Fabrics</h2>
-        </ScrollReveal>
-        {loading ? (
+      {/* Our Fabrics — only non-sale items; skipped entirely when everything is on sale */}
+      {loading ? (
+        <section className="mb-16">
+          <ScrollReveal>
+            <h2 className="mb-6 text-2xl font-bold text-text">Our Fabrics</h2>
+          </ScrollReveal>
           <div className="py-12 text-center">
             <p className="text-text-muted">Loading...</p>
           </div>
-        ) : fabrics.length > 0 ? (
+        </section>
+      ) : regularFabrics.length > 0 ? (
+        <section className="mb-16">
+          <ScrollReveal>
+            <h2 className="mb-6 text-2xl font-bold text-text">Our Fabrics</h2>
+          </ScrollReveal>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {fabrics.map((fabric, i) => (
+            {regularFabrics.map((fabric, i) => (
               <ScrollReveal key={`${fabric.name}-${i}`} delay={i * 80}>
                 <FabricCard fabric={fabric} onOpen={openLightbox} />
               </ScrollReveal>
             ))}
           </div>
-        ) : (
+        </section>
+      ) : fabrics.length === 0 ? (
+        <section className="mb-16">
+          <ScrollReveal>
+            <h2 className="mb-6 text-2xl font-bold text-text">Our Fabrics</h2>
+          </ScrollReveal>
           <div className="rounded-xl border-2 border-dashed border-cream-dark bg-white p-12 text-center">
             <p className="text-text-light">Photos coming soon!</p>
           </div>
-        )}
-      </section>
+        </section>
+      ) : null}
 
       {/* Our Shop */}
       <section>
