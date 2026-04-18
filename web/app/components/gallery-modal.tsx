@@ -4,14 +4,14 @@ import { useState, useEffect, useCallback } from "react";
 
 interface CatalogItem {
   name: string;
-  price: string;
+  price: string | number;
   image: string;
   category: string;
   caption: string;
   image_urls?: string;
-  sale_price?: string;
+  sale_price?: string | number;
   sale_label?: string;
-  yards_per_roll?: string;
+  yards_per_roll?: string | number;
 }
 
 function isNumeric(v?: string | number) {
@@ -20,14 +20,16 @@ function isNumeric(v?: string | number) {
   return /^\d+(\.\d+)?$/.test(s);
 }
 
-function formatPrice(v: string): string {
-  return isNumeric(v) ? `₱${Number(String(v).replace(/,/g, ""))}/yard` : v;
+function formatPrice(v: string | number): string {
+  const s = String(v);
+  return isNumeric(s) ? `₱${Number(s.replace(/,/g, ""))}/yard` : s;
 }
 
-function formatYards(v?: string): string | null {
-  if (!v) return null;
-  if (isNumeric(v)) return `${Number(String(v).replace(/,/g, ""))} yards per roll`;
-  return v;
+function formatYards(v?: string | number): string | null {
+  if (v === undefined || v === null || v === "") return null;
+  const s = String(v);
+  if (isNumeric(s)) return `${Number(s.replace(/,/g, ""))} yards per roll`;
+  return s;
 }
 
 function PriceBlock({
@@ -36,13 +38,15 @@ function PriceBlock({
   saleLabel,
   yardsPerRoll,
 }: {
-  price: string;
-  salePrice?: string;
+  price: string | number;
+  salePrice?: string | number;
   saleLabel?: string;
-  yardsPerRoll?: string;
+  yardsPerRoll?: string | number;
 }) {
-  const priceDisplay = price ? formatPrice(price) : "";
-  const saleDisplay = salePrice ? formatPrice(salePrice) : "";
+  const hasPrice = price !== undefined && price !== null && String(price) !== "";
+  const hasSale = salePrice !== undefined && salePrice !== null && String(salePrice) !== "";
+  const priceDisplay = hasPrice ? formatPrice(price) : "";
+  const saleDisplay = hasSale ? formatPrice(salePrice!) : "";
   const yardsDisplay = formatYards(yardsPerRoll);
 
   return (

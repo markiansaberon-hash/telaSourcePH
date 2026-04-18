@@ -42,6 +42,12 @@ function Header() {
           >
             Gallery
           </Link>
+          <Link
+            href="/sale"
+            className="hidden text-sm font-semibold text-red-600 transition hover:text-red-700 sm:block"
+          >
+            Sale
+          </Link>
           <MobileMenu />
           <Link
             href="/upload"
@@ -131,6 +137,12 @@ export default function RootLayout({
         />
       </head>
       <body className="flex min-h-screen flex-col bg-cream antialiased">
+        <Link
+          href="/sale"
+          className="block bg-gradient-to-r from-red-600 to-red-500 px-4 py-2 text-center text-xs font-semibold text-white transition hover:from-red-700 hover:to-red-600 sm:text-sm"
+        >
+          🔥 Seasonal Sale — limited stock, must go this year. View offers &rarr;
+        </Link>
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />

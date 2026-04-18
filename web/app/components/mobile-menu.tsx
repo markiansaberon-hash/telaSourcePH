@@ -48,6 +48,13 @@ export default function MobileMenu() {
             >
               Gallery
             </Link>
+            <Link
+              href="/sale"
+              onClick={() => setOpen(false)}
+              className="block rounded-lg px-3 py-2.5 text-sm font-semibold text-red-600 transition hover:bg-red-50"
+            >
+              Sale
+            </Link>
           </div>
         </div>
       )}
