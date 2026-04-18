@@ -31,9 +31,12 @@ function HeroSection() {
             We&apos;ll find the best price for you.
           </span>
         </h1>
-        <p className="animate-fade-in-up animate-delay-200 mx-auto mb-10 max-w-2xl text-base text-cream/90 drop-shadow md:text-lg">
+        <p className="animate-fade-in-up animate-delay-200 mx-auto mb-3 max-w-2xl text-base text-cream/90 drop-shadow md:text-lg">
           Bulk fabric orders made easy. We source from 50+ Divisoria suppliers,
           get you the best wholesale prices, and deliver fast — all from your phone.
+        </p>
+        <p className="animate-fade-in-up animate-delay-200 mx-auto mb-10 max-w-2xl text-sm italic text-cream/80 drop-shadow md:text-base">
+          Padala mo lang ang listahan — kami na bahala.
         </p>
         <Link
           href="/upload"

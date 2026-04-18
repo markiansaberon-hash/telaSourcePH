@@ -1,13 +1,50 @@
 import type { Metadata, Viewport } from "next";
 import Link from "next/link";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import MobileMenu from "./components/mobile-menu";
 import "./globals.css";
 
+const SITE_URL = "https://telasourceph.com";
+
 export const metadata: Metadata = {
-  metadataBase: new URL("https://telasourceph.com"),
-  title: "TelaSource PH — Fabric Sourcing Made Easy",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "TelaSource PH — Wholesale Fabric Sourcing from Divisoria",
+    template: "%s | TelaSource PH",
+  },
   description:
-    "Send your fabric list. We source everything from 50+ Divisoria suppliers and deliver to your door.",
+    "Send your fabric list. We source wholesale tela from 50+ Divisoria suppliers and deliver across the Philippines — Manila, Luzon, Visayas, Mindanao.",
+  keywords: [
+    "tela",
+    "fabric",
+    "Divisoria",
+    "wholesale fabric Philippines",
+    "bulk fabric Manila",
+    "Philippine fabric supplier",
+    "tela Divisoria",
+    "uniform fabric Philippines",
+    "cotton Divisoria",
+    "fabric sourcing Manila",
+  ],
+  openGraph: {
+    type: "website",
+    siteName: "TelaSource PH",
+    locale: "en_PH",
+    url: SITE_URL,
+    title: "TelaSource PH — Wholesale Fabric Sourcing from Divisoria",
+    description:
+      "Bulk fabric orders made easy. We source from 50+ Divisoria suppliers and deliver nationwide.",
+    images: [{ url: "/hero-fabrics.jpg", width: 2048, height: 1365, alt: "Fabric rolls at TelaSource PH" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "TelaSource PH — Wholesale Fabric Sourcing from Divisoria",
+    description:
+      "Send your fabric list. We source from 50+ Divisoria suppliers.",
+    images: ["/hero-fabrics.jpg"],
+  },
+  alternates: { canonical: "/" },
 };
 
 export const viewport: Viewport = {
@@ -114,13 +151,74 @@ function Footer() {
   );
 }
 
+const orgJsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": `${SITE_URL}/#organization`,
+      name: "TelaSource PH",
+      url: SITE_URL,
+      logo: `${SITE_URL}/hero-fabrics.jpg`,
+      sameAs: [
+        "https://www.facebook.com/telasourcePH",
+        "https://www.facebook.com/4110textilefabric",
+      ],
+      contactPoint: {
+        "@type": "ContactPoint",
+        telephone: "+63-917-328-7704",
+        contactType: "customer service",
+        areaServed: "PH",
+        availableLanguage: ["en", "fil"],
+      },
+    },
+    {
+      "@type": "LocalBusiness",
+      "@id": `${SITE_URL}/#localbusiness`,
+      name: "TelaSource PH",
+      image: `${SITE_URL}/hero-fabrics.jpg`,
+      url: SITE_URL,
+      telephone: "+63-917-328-7704",
+      email: "orders@telasourceph.com",
+      priceRange: "₱₱",
+      address: {
+        "@type": "PostalAddress",
+        streetAddress: "Shop 4110, Divisoria",
+        addressLocality: "Manila",
+        addressRegion: "NCR",
+        addressCountry: "PH",
+      },
+      openingHoursSpecification: [
+        {
+          "@type": "OpeningHoursSpecification",
+          dayOfWeek: [
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+            "Sunday",
+          ],
+          opens: "08:00",
+          closes: "17:00",
+        },
+      ],
+      sameAs: [
+        "https://www.facebook.com/telasourcePH",
+        "https://www.facebook.com/4110textilefabric",
+      ],
+    },
+  ],
+};
+
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en-PH">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
@@ -136,6 +234,10 @@ export default function RootLayout({
           href="https://fonts.cdnfonts.com/css/cabinet-grotesk"
           rel="stylesheet"
         />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
+        />
       </head>
       <body className="flex min-h-screen flex-col bg-cream antialiased">
         <Link
@@ -147,6 +249,8 @@ export default function RootLayout({
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

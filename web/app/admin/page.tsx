@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { upload } from "@vercel/blob/client";
+import ShareButtons from "../components/share-buttons";
 
 const MAX_DIMENSION = 1600;
 const JPEG_QUALITY = 0.85;
@@ -139,7 +140,15 @@ export default function AdminPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState("All");
-  const [view, setView] = useState<"list" | "kanban" | "gallery">("list");
+  const [view, setView] = useState<"list" | "kanban" | "gallery" | "share">("list");
+  const [shareFabrics, setShareFabrics] = useState<Array<{
+    name: string;
+    image: string;
+    image_urls?: string;
+    sale_price?: string | number;
+    sale_label?: string;
+  }>>([]);
+  const [shareLoading, setShareLoading] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [commentText, setCommentText] = useState("");
   const [saving, setSaving] = useState(false);
@@ -219,6 +228,21 @@ export default function AdminPage() {
       fetchGalleryImages();
     }
   }, [authed, view, fetchGalleryImages]);
+
+  // Load catalog for share view
+  useEffect(() => {
+    if (!authed || view !== "share") return;
+    setShareLoading(true);
+    fetch("/api/fabrics")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setShareFabrics(data.filter((i: { category?: string }) => i.category === "fabric"));
+        }
+      })
+      .catch(() => {})
+      .finally(() => setShareLoading(false));
+  }, [authed, view]);
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -506,6 +530,12 @@ export default function AdminPage() {
                 className={`rounded-md px-3 py-1.5 text-xs font-semibold transition ${view === "gallery" ? "bg-white text-text shadow-sm" : "text-text-light"}`}
               >
                 Gallery
+              </button>
+              <button
+                onClick={() => setView("share")}
+                className={`rounded-md px-3 py-1.5 text-xs font-semibold transition ${view === "share" ? "bg-white text-text shadow-sm" : "text-text-light"}`}
+              >
+                Share
               </button>
             </div>
             <button
@@ -1000,6 +1030,64 @@ export default function AdminPage() {
                 </div>
               )}
             </div>
+          </div>
+        )}
+
+        {/* SHARE VIEW */}
+        {view === "share" && (
+          <div className="rounded-xl bg-white p-6 shadow-[0_1px_4px_rgba(44,24,16,0.06)]">
+            <h2 className="mb-2 text-lg font-bold text-text">Share Fabrics</h2>
+            <p className="mb-6 text-sm text-text-light">
+              Post a fabric to Facebook, Messenger, Viber, or WhatsApp. First time sharing a new URL on Facebook?
+              Click <strong>Refresh FB preview</strong> to force it to fetch the latest image and title.
+            </p>
+            {shareLoading ? (
+              <p className="text-sm text-text-muted">Loading fabrics...</p>
+            ) : shareFabrics.length === 0 ? (
+              <p className="text-sm text-text-muted">No fabrics found in the catalog.</p>
+            ) : (
+              <div className="space-y-4">
+                {shareFabrics.map((fabric) => {
+                  const slug = fabric.name
+                    .toLowerCase()
+                    .replace(/[^a-z0-9]+/g, "-")
+                    .replace(/^-+|-+$/g, "")
+                    .slice(0, 80);
+                  const url = `https://telasourceph.com/fabric/${slug}`;
+                  const firstImage =
+                    (fabric.image_urls?.split(",")[0] || "").trim() || fabric.image || "";
+                  const debuggerUrl = `https://developers.facebook.com/tools/debug/?q=${encodeURIComponent(url)}`;
+                  return (
+                    <div
+                      key={fabric.name}
+                      className="flex gap-4 rounded-lg border border-cream-dark bg-cream/40 p-3"
+                    >
+                      {firstImage && (
+                        /* eslint-disable-next-line @next/next/no-img-element */
+                        <img
+                          src={firstImage}
+                          alt={fabric.name}
+                          className="h-20 w-20 flex-shrink-0 rounded-md object-cover"
+                        />
+                      )}
+                      <div className="min-w-0 flex-1">
+                        <h3 className="mb-1 truncate font-semibold text-text">{fabric.name}</h3>
+                        <p className="mb-2 truncate text-xs text-text-muted">{url}</p>
+                        <ShareButtons url={url} title={fabric.name} />
+                        <a
+                          href={debuggerUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="mt-2 inline-block text-xs text-primary underline hover:text-primary-dark"
+                        >
+                          Refresh FB preview &rarr;
+                        </a>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         )}
 

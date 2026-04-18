@@ -6,11 +6,13 @@ import {
   formatPrice,
   formatYards,
   hasValue,
+  isNumeric,
   slugify,
   splitImageUrls,
 } from "../../lib/catalog";
-import ShareButtons from "../../components/share-buttons";
 import FabricImages from "./fabric-images";
+
+const SITE_URL = "https://telasourceph.com";
 
 export const revalidate = 300;
 
@@ -40,7 +42,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     ? `${saleStr}${priceStr ? ` (was ${priceStr})` : ""}`
     : priceStr;
 
-  const title = `${fabric.name}${priceLine ? " — " + priceLine : ""} | TelaSource PH`;
+  const title = `${fabric.name}${priceLine ? " — " + priceLine : ""}`;
   const description =
     (fabric.caption ? `${fabric.caption}. ` : "") +
     "Wholesale fabric sourced from Divisoria. Order by sending us your list.";
@@ -82,10 +84,50 @@ export default async function FabricPage({ params }: PageProps) {
   const saleBadgeText =
     hasValue(fabric.sale_label) ? String(fabric.sale_label) : "Sale";
 
-  const shareUrl = `https://telasourceph.com/fabric/${slug}`;
+  // Product JSON-LD
+  const numericSalePrice =
+    hasValue(fabric.sale_price) && isNumeric(fabric.sale_price)
+      ? Number(String(fabric.sale_price).replace(/,/g, ""))
+      : null;
+  const numericPrice =
+    hasValue(fabric.price) && isNumeric(fabric.price)
+      ? Number(String(fabric.price).replace(/,/g, ""))
+      : null;
+  const ldPrice = numericSalePrice ?? numericPrice;
+
+  const productJsonLd: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: fabric.name,
+    image: images.length > 0 ? images : undefined,
+    description:
+      (fabric.caption ? `${fabric.caption}. ` : "") +
+      "Wholesale fabric from Divisoria by TelaSource PH.",
+    brand: { "@type": "Brand", name: "TelaSource PH" },
+    url: `${SITE_URL}/fabric/${slug}`,
+  };
+  if (ldPrice !== null) {
+    productJsonLd.offers = {
+      "@type": "Offer",
+      url: `${SITE_URL}/fabric/${slug}`,
+      priceCurrency: "PHP",
+      price: ldPrice,
+      priceSpecification: {
+        "@type": "UnitPriceSpecification",
+        price: ldPrice,
+        priceCurrency: "PHP",
+        unitText: "yard",
+      },
+      availability: "https://schema.org/InStock",
+    };
+  }
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+      />
       <nav className="mb-6 text-sm text-text-muted">
         <Link href="/gallery" className="hover:text-primary">
           Gallery
@@ -119,17 +161,10 @@ export default async function FabricPage({ params }: PageProps) {
 
           <Link
             href="/upload"
-            className="mb-6 inline-block rounded-full bg-gradient-to-r from-primary to-accent px-6 py-3 text-sm font-bold text-cream shadow transition hover:scale-[1.02]"
+            className="inline-block rounded-full bg-gradient-to-r from-primary to-accent px-6 py-3 text-sm font-bold text-cream shadow transition hover:scale-[1.02]"
           >
             Order This Fabric
           </Link>
-
-          <div>
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-text-muted">
-              Share this fabric
-            </p>
-            <ShareButtons url={shareUrl} title={fabric.name} />
-          </div>
         </div>
       </div>
     </div>
