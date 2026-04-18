@@ -3,33 +3,35 @@ import ScrollReveal from "./components/scroll-reveal";
 
 function HeroSection() {
   return (
-    <section
-      className="relative overflow-hidden px-4 py-20 text-cream md:py-32"
-      style={{
-        background: `
-          radial-gradient(ellipse at 20% 30%, rgba(196,102,46,0.15) 0%, transparent 60%),
-          radial-gradient(ellipse at 80% 80%, rgba(218,165,32,0.1) 0%, transparent 50%),
-          #2C1810
-        `,
-        backgroundImage: `
-          radial-gradient(ellipse at 20% 30%, rgba(196,102,46,0.15) 0%, transparent 60%),
-          radial-gradient(ellipse at 80% 80%, rgba(218,165,32,0.1) 0%, transparent 50%),
-          url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0 L60 30 L30 60 L0 30Z' fill='none' stroke='%23C4662E' stroke-width='0.3' opacity='0.06'/%3E%3C/svg%3E")
-        `,
-      }}
-    >
-      <div className="mx-auto max-w-4xl text-center">
+    <section className="relative overflow-hidden px-4 py-20 text-cream md:py-32">
+      {/* Background image */}
+      <div
+        className="absolute inset-0 bg-dark"
+        style={{
+          backgroundImage: "url('/hero-fabrics.jpg')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+        aria-hidden="true"
+      />
+      {/* Dark overlay for text contrast */}
+      <div
+        className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/70"
+        aria-hidden="true"
+      />
+
+      <div className="relative mx-auto max-w-4xl text-center">
         <p className="animate-fade-in-up mb-4 text-sm font-semibold tracking-widest text-accent uppercase md:text-base">
           Mabuhay!
         </p>
-        <h1 className="animate-fade-in-up animate-delay-100 mb-6 text-[2rem] font-extrabold leading-tight md:text-[3rem] lg:text-[3.5rem]">
+        <h1 className="animate-fade-in-up animate-delay-100 mb-6 text-[2rem] font-extrabold leading-tight drop-shadow-lg md:text-[3rem] lg:text-[3.5rem]">
           Send us your fabric list.
           <br />
           <span className="text-primary">
             We&apos;ll find the best price for you.
           </span>
         </h1>
-        <p className="animate-fade-in-up animate-delay-200 mx-auto mb-10 max-w-2xl text-base text-text-muted md:text-lg">
+        <p className="animate-fade-in-up animate-delay-200 mx-auto mb-10 max-w-2xl text-base text-cream/90 drop-shadow md:text-lg">
           Bulk fabric orders made easy. We source from 50+ Divisoria suppliers,
           get you the best wholesale prices, and deliver fast — all from your phone.
         </p>
