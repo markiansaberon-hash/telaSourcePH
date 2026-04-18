@@ -11,6 +11,8 @@ interface CatalogItem {
   category: string;
   caption: string;
   image_urls?: string;
+  sale_price?: string;
+  sale_label?: string;
 }
 
 function splitImageUrls(raw?: string): string[] {
@@ -19,6 +21,23 @@ function splitImageUrls(raw?: string): string[] {
     .split(",")
     .map((s) => s.trim())
     .filter(Boolean);
+}
+
+function PriceBlock({ price, salePrice, saleLabel }: { price: string; salePrice?: string; saleLabel?: string }) {
+  if (salePrice) {
+    return (
+      <div className="flex flex-wrap items-center gap-2">
+        {saleLabel && (
+          <span className="rounded bg-red-600 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
+            {saleLabel}
+          </span>
+        )}
+        {price && <span className="text-xs text-text-muted line-through">{price}</span>}
+        <span className="text-base font-bold text-red-600">{salePrice}</span>
+      </div>
+    );
+  }
+  return price ? <p className="text-sm font-semibold text-primary">{price}</p> : null;
 }
 
 interface FabricCardProps {
@@ -33,7 +52,12 @@ function FabricCard({ fabric, onOpen }: FabricCardProps) {
   const [active, setActive] = useState(0);
 
   return (
-    <div className="overflow-hidden rounded-xl bg-white shadow-[0_2px_12px_rgba(44,24,16,0.06)]">
+    <div className="relative overflow-hidden rounded-xl bg-white shadow-[0_2px_12px_rgba(44,24,16,0.06)]">
+      {fabric.sale_price && (
+        <span className="absolute right-3 top-3 z-10 rounded-full bg-red-600 px-2.5 py-1 text-xs font-bold uppercase tracking-wide text-white shadow-lg">
+          Sale
+        </span>
+      )}
       {images.length > 0 && (
         <button
           type="button"
@@ -69,9 +93,7 @@ function FabricCard({ fabric, onOpen }: FabricCardProps) {
       )}
       <div className="p-4">
         <h3 className="font-bold text-text">{fabric.name}</h3>
-        {fabric.price && (
-          <p className="text-sm font-semibold text-primary">{fabric.price}</p>
-        )}
+        <PriceBlock price={fabric.price} salePrice={fabric.sale_price} saleLabel={fabric.sale_label} />
       </div>
     </div>
   );
@@ -93,6 +115,7 @@ export default function GalleryPage() {
   }, []);
 
   const fabrics = items.filter((i) => i.category === "fabric");
+  const saleFabrics = fabrics.filter((f) => f.sale_price && f.sale_price.trim() !== "");
   const shopPhotos = items.filter((i) => i.category === "shop");
 
   const openLightbox = (images: string[], index: number, alt: string) =>
@@ -115,6 +138,27 @@ export default function GalleryPage() {
           <p className="mt-1 text-xs text-text-muted">Tap any photo to view full size.</p>
         </div>
       </ScrollReveal>
+
+      {/* On Sale */}
+      {!loading && saleFabrics.length > 0 && (
+        <section className="mb-16">
+          <ScrollReveal>
+            <div className="mb-6 flex items-center gap-3">
+              <span className="rounded-full bg-red-600 px-3 py-1 text-xs font-bold uppercase tracking-wider text-white">
+                On Sale
+              </span>
+              <h2 className="text-2xl font-bold text-text">Promos & Discounts</h2>
+            </div>
+          </ScrollReveal>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {saleFabrics.map((fabric, i) => (
+              <ScrollReveal key={`sale-${fabric.name}-${i}`} delay={i * 80}>
+                <FabricCard fabric={fabric} onOpen={openLightbox} />
+              </ScrollReveal>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Our Fabrics */}
       <section className="mb-16">

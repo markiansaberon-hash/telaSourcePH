@@ -9,6 +9,27 @@ interface CatalogItem {
   category: string;
   caption: string;
   image_urls?: string;
+  sale_price?: string;
+  sale_label?: string;
+}
+
+function PriceBlock({ price, salePrice, saleLabel }: { price: string; salePrice?: string; saleLabel?: string }) {
+  if (salePrice) {
+    return (
+      <div className="flex flex-wrap items-center gap-1.5">
+        {saleLabel && (
+          <span className="rounded bg-red-600 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
+            {saleLabel}
+          </span>
+        )}
+        {price && (
+          <span className="text-xs text-text-muted line-through">{price}</span>
+        )}
+        <span className="text-sm font-bold text-red-600">{salePrice}</span>
+      </div>
+    );
+  }
+  return price ? <p className="text-sm font-semibold text-primary">{price}</p> : null;
 }
 
 interface GalleryModalProps {
@@ -124,8 +145,13 @@ export default function GalleryModal({ open, onClose }: GalleryModalProps) {
                     {fabrics.map((fabric, i) => (
                       <div
                         key={`${fabric.name}-${i}`}
-                        className="overflow-hidden rounded-xl bg-white shadow-[0_2px_12px_rgba(44,24,16,0.06)]"
+                        className="relative overflow-hidden rounded-xl bg-white shadow-[0_2px_12px_rgba(44,24,16,0.06)]"
                       >
+                        {fabric.sale_price && (
+                          <span className="absolute right-2 top-2 z-10 rounded-full bg-red-600 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white shadow">
+                            Sale
+                          </span>
+                        )}
                         {fabric.image && (
                           <div className="aspect-[4/3] bg-cream-dark">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -138,11 +164,11 @@ export default function GalleryModal({ open, onClose }: GalleryModalProps) {
                         )}
                         <div className="p-3">
                           <h4 className="font-bold text-text">{fabric.name}</h4>
-                          {fabric.price && (
-                            <p className="text-sm font-semibold text-primary">
-                              {fabric.price}
-                            </p>
-                          )}
+                          <PriceBlock
+                            price={fabric.price}
+                            salePrice={fabric.sale_price}
+                            saleLabel={fabric.sale_label}
+                          />
                         </div>
                       </div>
                     ))}
