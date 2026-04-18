@@ -155,6 +155,15 @@ export default function AdminPage() {
   const [galleryImages, setGalleryImages] = useState<{ url: string; pathname: string; uploadedAt: string; size: number }[]>([]);
   const [galleryLoading, setGalleryLoading] = useState(false);
   const [deletingUrl, setDeletingUrl] = useState<string | null>(null);
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
+
+  function copyToClipboard(text: string, key: string) {
+    navigator.clipboard.writeText(text);
+    setCopiedKey(key);
+    setTimeout(() => {
+      setCopiedKey((prev) => (prev === key ? null : prev));
+    }, 1500);
+  }
 
   const fetchGalleryImages = useCallback(async () => {
     setGalleryLoading(true);
@@ -902,10 +911,10 @@ export default function AdminPage() {
                             {folder} — {urls.length} image{urls.length === 1 ? "" : "s"}
                           </p>
                           <button
-                            onClick={() => navigator.clipboard.writeText(joined)}
+                            onClick={() => copyToClipboard(joined, `group:${folder}`)}
                             className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-cream transition hover:bg-primary-dark"
                           >
-                            Copy URLs
+                            {copiedKey === `group:${folder}` ? "Copied!" : "Copy URLs"}
                           </button>
                         </div>
                         <textarea
@@ -972,10 +981,10 @@ export default function AdminPage() {
                             onClick={(e) => (e.target as HTMLInputElement).select()}
                           />
                           <button
-                            onClick={() => navigator.clipboard.writeText(img.url)}
+                            onClick={() => copyToClipboard(img.url, `img:${img.url}`)}
                             className="shrink-0 rounded bg-primary px-2 py-1 text-xs font-semibold text-cream transition hover:bg-primary-dark"
                           >
-                            Copy
+                            {copiedKey === `img:${img.url}` ? "Copied!" : "Copy"}
                           </button>
                           <button
                             onClick={() => deleteGalleryImage(img.url)}
