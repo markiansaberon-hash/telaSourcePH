@@ -62,7 +62,9 @@ function SaleFabricCard({ fabric, onOpen }: FabricCardProps) {
   return (
     <div className="relative overflow-hidden rounded-xl bg-white shadow-[0_2px_12px_rgba(44,24,16,0.06)]">
       <span className="absolute right-3 top-3 z-10 rounded-full bg-red-600 px-2.5 py-1 text-xs font-bold uppercase tracking-wide text-white shadow-lg">
-        Sale
+        {fabric.sale_label && String(fabric.sale_label).trim() !== ""
+          ? fabric.sale_label
+          : "Sale"}
       </span>
       {images.length > 0 && (
         <button
@@ -100,11 +102,6 @@ function SaleFabricCard({ fabric, onOpen }: FabricCardProps) {
       <div className="p-4">
         <h3 className="font-bold text-text">{fabric.name}</h3>
         <div className="mt-1 flex flex-wrap items-center gap-2">
-          {fabric.sale_label && (
-            <span className="rounded bg-red-600 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
-              {fabric.sale_label}
-            </span>
-          )}
           {priceDisplay && <span className="text-xs text-text-muted line-through">{priceDisplay}</span>}
           {saleDisplay && <span className="text-base font-bold text-red-600">{saleDisplay}</span>}
         </div>

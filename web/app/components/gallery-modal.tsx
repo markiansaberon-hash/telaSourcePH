@@ -35,12 +35,10 @@ function formatYards(v?: string | number): string | null {
 function PriceBlock({
   price,
   salePrice,
-  saleLabel,
   yardsPerRoll,
 }: {
   price: string | number;
   salePrice?: string | number;
-  saleLabel?: string;
   yardsPerRoll?: string | number;
 }) {
   const hasPrice = price !== undefined && price !== null && String(price) !== "";
@@ -53,11 +51,6 @@ function PriceBlock({
     <div className="space-y-0.5">
       {saleDisplay ? (
         <div className="flex flex-wrap items-center gap-1.5">
-          {saleLabel && (
-            <span className="rounded bg-red-600 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
-              {saleLabel}
-            </span>
-          )}
           {priceDisplay && <span className="text-xs text-text-muted line-through">{priceDisplay}</span>}
           <span className="text-sm font-bold text-red-600">{saleDisplay}</span>
         </div>
@@ -187,7 +180,9 @@ export default function GalleryModal({ open, onClose }: GalleryModalProps) {
                         {((fabric.sale_price && String(fabric.sale_price).trim() !== "") ||
                           (fabric.sale_label && String(fabric.sale_label).trim() !== "")) && (
                           <span className="absolute right-2 top-2 z-10 rounded-full bg-red-600 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white shadow">
-                            Sale
+                            {fabric.sale_label && String(fabric.sale_label).trim() !== ""
+                              ? fabric.sale_label
+                              : "Sale"}
                           </span>
                         )}
                         {fabric.image && (
@@ -205,7 +200,6 @@ export default function GalleryModal({ open, onClose }: GalleryModalProps) {
                           <PriceBlock
                             price={fabric.price}
                             salePrice={fabric.sale_price}
-                            saleLabel={fabric.sale_label}
                             yardsPerRoll={fabric.yards_per_roll}
                           />
                           {fabric.caption && (

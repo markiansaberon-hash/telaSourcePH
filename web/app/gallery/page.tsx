@@ -45,12 +45,10 @@ function formatYards(v?: string | number): string | null {
 function PriceBlock({
   price,
   salePrice,
-  saleLabel,
   yardsPerRoll,
 }: {
   price: string | number;
   salePrice?: string | number;
-  saleLabel?: string;
   yardsPerRoll?: string | number;
 }) {
   const hasPrice = price !== undefined && price !== null && String(price) !== "";
@@ -63,11 +61,6 @@ function PriceBlock({
     <div className="space-y-0.5">
       {saleDisplay ? (
         <div className="flex flex-wrap items-center gap-2">
-          {saleLabel && (
-            <span className="rounded bg-red-600 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
-              {saleLabel}
-            </span>
-          )}
           {priceDisplay && <span className="text-xs text-text-muted line-through">{priceDisplay}</span>}
           <span className="text-base font-bold text-red-600">{saleDisplay}</span>
         </div>
@@ -98,7 +91,9 @@ function FabricCard({ fabric, onOpen }: FabricCardProps) {
     <div className="relative overflow-hidden rounded-xl bg-white shadow-[0_2px_12px_rgba(44,24,16,0.06)]">
       {showSaleBadge && (
         <span className="absolute right-3 top-3 z-10 rounded-full bg-red-600 px-2.5 py-1 text-xs font-bold uppercase tracking-wide text-white shadow-lg">
-          Sale
+          {fabric.sale_label && String(fabric.sale_label).trim() !== ""
+            ? fabric.sale_label
+            : "Sale"}
         </span>
       )}
       {images.length > 0 && (
@@ -139,7 +134,6 @@ function FabricCard({ fabric, onOpen }: FabricCardProps) {
         <PriceBlock
           price={fabric.price}
           salePrice={fabric.sale_price}
-          saleLabel={fabric.sale_label}
           yardsPerRoll={fabric.yards_per_roll}
         />
         {fabric.caption && (
