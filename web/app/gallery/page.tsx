@@ -13,6 +13,7 @@ interface CatalogItem {
   image_urls?: string;
   sale_price?: string;
   sale_label?: string;
+  yards_per_roll?: string;
 }
 
 function splitImageUrls(raw?: string): string[] {
@@ -23,21 +24,55 @@ function splitImageUrls(raw?: string): string[] {
     .filter(Boolean);
 }
 
-function PriceBlock({ price, salePrice, saleLabel }: { price: string; salePrice?: string; saleLabel?: string }) {
-  if (salePrice) {
-    return (
-      <div className="flex flex-wrap items-center gap-2">
-        {saleLabel && (
-          <span className="rounded bg-red-600 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
-            {saleLabel}
-          </span>
-        )}
-        {price && <span className="text-xs text-text-muted line-through">{price}</span>}
-        <span className="text-base font-bold text-red-600">{salePrice}</span>
-      </div>
-    );
-  }
-  return price ? <p className="text-sm font-semibold text-primary">{price}</p> : null;
+function isNumeric(v?: string | number) {
+  if (v === undefined || v === null || v === "") return false;
+  const s = String(v).trim().replace(/,/g, "");
+  return /^\d+(\.\d+)?$/.test(s);
+}
+
+function formatPrice(v: string): string {
+  return isNumeric(v) ? `₱${Number(String(v).replace(/,/g, ""))}/yard` : v;
+}
+
+function formatYards(v?: string): string | null {
+  if (!v) return null;
+  if (isNumeric(v)) return `${Number(String(v).replace(/,/g, ""))} yards per roll`;
+  return v;
+}
+
+function PriceBlock({
+  price,
+  salePrice,
+  saleLabel,
+  yardsPerRoll,
+}: {
+  price: string;
+  salePrice?: string;
+  saleLabel?: string;
+  yardsPerRoll?: string;
+}) {
+  const priceDisplay = price ? formatPrice(price) : "";
+  const saleDisplay = salePrice ? formatPrice(salePrice) : "";
+  const yardsDisplay = formatYards(yardsPerRoll);
+
+  return (
+    <div className="space-y-0.5">
+      {saleDisplay ? (
+        <div className="flex flex-wrap items-center gap-2">
+          {saleLabel && (
+            <span className="rounded bg-red-600 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
+              {saleLabel}
+            </span>
+          )}
+          {priceDisplay && <span className="text-xs text-text-muted line-through">{priceDisplay}</span>}
+          <span className="text-base font-bold text-red-600">{saleDisplay}</span>
+        </div>
+      ) : priceDisplay ? (
+        <p className="text-sm font-semibold text-primary">{priceDisplay}</p>
+      ) : null}
+      {yardsDisplay && <p className="text-xs text-text-muted">{yardsDisplay}</p>}
+    </div>
+  );
 }
 
 interface FabricCardProps {
@@ -93,7 +128,12 @@ function FabricCard({ fabric, onOpen }: FabricCardProps) {
       )}
       <div className="p-4">
         <h3 className="font-bold text-text">{fabric.name}</h3>
-        <PriceBlock price={fabric.price} salePrice={fabric.sale_price} saleLabel={fabric.sale_label} />
+        <PriceBlock
+          price={fabric.price}
+          salePrice={fabric.sale_price}
+          saleLabel={fabric.sale_label}
+          yardsPerRoll={fabric.yards_per_roll}
+        />
       </div>
     </div>
   );
