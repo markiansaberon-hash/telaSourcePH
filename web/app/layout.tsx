@@ -141,7 +141,7 @@ export default function RootLayout({
           href="/sale"
           className="block bg-gradient-to-r from-red-600 to-red-500 px-4 py-2 text-center text-xs font-semibold text-white transition hover:from-red-700 hover:to-red-600 sm:text-sm"
         >
-          🔥 Seasonal Sale — limited stock, must go this year. View offers &rarr;
+          🎉 Soft Opening Sale — special launch prices on every fabric. View offers &rarr;
         </Link>
         <Header />
         <main className="flex-1">{children}</main>
