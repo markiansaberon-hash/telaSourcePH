@@ -1,6 +1,72 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { upload } from "@vercel/blob/client";
+
+const MAX_DIMENSION = 1600;
+const JPEG_QUALITY = 0.85;
+
+function slugify(name: string) {
+  return (
+    name
+      .toLowerCase()
+      .replace(/\.[^.]+$/, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 48) || "image"
+  );
+}
+
+async function loadImage(src: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = src;
+  });
+}
+
+async function resizeToJpeg(blob: Blob): Promise<Blob> {
+  const url = URL.createObjectURL(blob);
+  try {
+    const img = await loadImage(url);
+    const { width: w, height: h } = img;
+    const scale = Math.min(1, MAX_DIMENSION / Math.max(w, h));
+    const targetW = Math.round(w * scale);
+    const targetH = Math.round(h * scale);
+    const canvas = document.createElement("canvas");
+    canvas.width = targetW;
+    canvas.height = targetH;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error("Canvas unavailable");
+    ctx.drawImage(img, 0, 0, targetW, targetH);
+    return await new Promise<Blob>((resolve, reject) => {
+      canvas.toBlob(
+        (b) => (b ? resolve(b) : reject(new Error("Canvas export failed"))),
+        "image/jpeg",
+        JPEG_QUALITY,
+      );
+    });
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+
+async function prepareForUpload(file: File): Promise<Blob> {
+  const name = file.name.toLowerCase();
+  const isHeic =
+    name.endsWith(".heic") ||
+    name.endsWith(".heif") ||
+    file.type.includes("heic") ||
+    file.type.includes("heif");
+  let source: Blob = file;
+  if (isHeic) {
+    const heic2any = (await import("heic2any")).default;
+    const converted = await heic2any({ blob: file, toType: "image/jpeg", quality: JPEG_QUALITY });
+    source = Array.isArray(converted) ? converted[0] : converted;
+  }
+  return await resizeToJpeg(source);
+}
 
 interface Order {
   orderId: string;
@@ -286,28 +352,31 @@ export default function AdminPage() {
     setGalleryResults([]);
     setGalleryErrors([]);
 
-    // Upload in batches of 4 so large folders don't time out
-    const BATCH = 4;
     const allResults: Array<{ url: string; originalName: string; folder: string }> = [];
     const allErrors: string[] = [];
 
     try {
-      for (let i = 0; i < files.length; i += BATCH) {
-        const batch = files.slice(i, i + BATCH);
-        setGalleryProgress(`Uploading ${Math.min(i + BATCH, files.length)} / ${files.length}...`);
-        const formData = new FormData();
-        for (const f of batch) {
-          formData.append("files", f);
-          const relPath = (f as File & { webkitRelativePath?: string }).webkitRelativePath || f.name;
-          formData.append("paths", relPath);
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        setGalleryProgress(`Processing ${i + 1} / ${files.length}: ${file.name}`);
+        const relPath =
+          (file as File & { webkitRelativePath?: string }).webkitRelativePath || file.name;
+        const segments = relPath.split("/").filter(Boolean);
+        const folder = segments.length > 1 ? segments[0] : "";
+        const folderSlug = folder ? `${slugify(folder)}/` : "";
+        const pathname = `gallery/${folderSlug}${slugify(file.name)}.jpg`;
+
+        try {
+          const prepared = await prepareForUpload(file);
+          const blob = await upload(pathname, prepared, {
+            access: "public",
+            handleUploadUrl: "/api/admin/upload-gallery",
+            contentType: "image/jpeg",
+          });
+          allResults.push({ url: blob.url, originalName: file.name, folder });
+        } catch (err) {
+          allErrors.push(`${file.name}: ${err instanceof Error ? err.message : "failed"}`);
         }
-        const res = await fetch("/api/admin/upload-gallery", {
-          method: "POST",
-          body: formData,
-        });
-        const data = await res.json();
-        if (Array.isArray(data.results)) allResults.push(...data.results);
-        if (Array.isArray(data.errors)) allErrors.push(...data.errors);
       }
       setGalleryResults(allResults);
       setGalleryErrors(allErrors);
