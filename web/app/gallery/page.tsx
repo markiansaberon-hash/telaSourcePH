@@ -90,9 +90,13 @@ function FabricCard({ fabric, onOpen }: FabricCardProps) {
   const images = gallery.length > 0 ? gallery : fallback;
   const [active, setActive] = useState(0);
 
+  const showSaleBadge =
+    (fabric.sale_price && String(fabric.sale_price).trim() !== "") ||
+    (fabric.sale_label && String(fabric.sale_label).trim() !== "");
+
   return (
     <div className="relative overflow-hidden rounded-xl bg-white shadow-[0_2px_12px_rgba(44,24,16,0.06)]">
-      {fabric.sale_price && (
+      {showSaleBadge && (
         <span className="absolute right-3 top-3 z-10 rounded-full bg-red-600 px-2.5 py-1 text-xs font-bold uppercase tracking-wide text-white shadow-lg">
           Sale
         </span>
@@ -138,6 +142,9 @@ function FabricCard({ fabric, onOpen }: FabricCardProps) {
           saleLabel={fabric.sale_label}
           yardsPerRoll={fabric.yards_per_roll}
         />
+        {fabric.caption && (
+          <p className="mt-1 text-xs text-text-muted">{fabric.caption}</p>
+        )}
       </div>
     </div>
   );
@@ -159,8 +166,11 @@ export default function GalleryPage() {
   }, []);
 
   const fabrics = items.filter((i) => i.category === "fabric");
-  const saleFabrics = fabrics.filter((f) => f.sale_price && String(f.sale_price).trim() !== "");
-  const regularFabrics = fabrics.filter((f) => !f.sale_price || String(f.sale_price).trim() === "");
+  const isOnSale = (f: CatalogItem) =>
+    (f.sale_price && String(f.sale_price).trim() !== "") ||
+    (f.sale_label && String(f.sale_label).trim() !== "");
+  const saleFabrics = fabrics.filter(isOnSale);
+  const regularFabrics = fabrics.filter((f) => !isOnSale(f));
   const shopPhotos = items.filter((i) => i.category === "shop");
 
   const openLightbox = (images: string[], index: number, alt: string) =>

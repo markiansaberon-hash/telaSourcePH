@@ -184,7 +184,8 @@ export default function GalleryModal({ open, onClose }: GalleryModalProps) {
                         key={`${fabric.name}-${i}`}
                         className="relative overflow-hidden rounded-xl bg-white shadow-[0_2px_12px_rgba(44,24,16,0.06)]"
                       >
-                        {fabric.sale_price && (
+                        {((fabric.sale_price && String(fabric.sale_price).trim() !== "") ||
+                          (fabric.sale_label && String(fabric.sale_label).trim() !== "")) && (
                           <span className="absolute right-2 top-2 z-10 rounded-full bg-red-600 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white shadow">
                             Sale
                           </span>
@@ -207,6 +208,9 @@ export default function GalleryModal({ open, onClose }: GalleryModalProps) {
                             saleLabel={fabric.sale_label}
                             yardsPerRoll={fabric.yards_per_roll}
                           />
+                          {fabric.caption && (
+                            <p className="mt-1 text-xs text-text-muted">{fabric.caption}</p>
+                          )}
                         </div>
                       </div>
                     ))}

@@ -109,6 +109,9 @@ function SaleFabricCard({ fabric, onOpen }: FabricCardProps) {
           {saleDisplay && <span className="text-base font-bold text-red-600">{saleDisplay}</span>}
         </div>
         {yardsDisplay && <p className="mt-0.5 text-xs text-text-muted">{yardsDisplay}</p>}
+        {fabric.caption && (
+          <p className="mt-0.5 text-xs text-text-muted">{fabric.caption}</p>
+        )}
       </div>
     </div>
   );
@@ -130,7 +133,10 @@ export default function SalePage() {
   }, []);
 
   const saleFabrics = items.filter(
-    (i) => i.category === "fabric" && i.sale_price && String(i.sale_price).trim() !== "",
+    (i) =>
+      i.category === "fabric" &&
+      ((i.sale_price && String(i.sale_price).trim() !== "") ||
+        (i.sale_label && String(i.sale_label).trim() !== "")),
   );
 
   const openLightbox = (images: string[], index: number, alt: string) =>
