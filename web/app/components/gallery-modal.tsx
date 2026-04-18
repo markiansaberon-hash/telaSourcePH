@@ -8,6 +8,7 @@ interface CatalogItem {
   image: string;
   category: string;
   caption: string;
+  image_urls?: string;
 }
 
 interface GalleryModalProps {

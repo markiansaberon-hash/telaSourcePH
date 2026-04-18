@@ -83,7 +83,9 @@ export default function AdminPage() {
   const [editedNotesText, setEditedNotesText] = useState("");
   const [deleting, setDeleting] = useState<string | null>(null);
   const [galleryUploading, setGalleryUploading] = useState(false);
-  const [galleryUrl, setGalleryUrl] = useState("");
+  const [galleryProgress, setGalleryProgress] = useState("");
+  const [galleryResults, setGalleryResults] = useState<Array<{ url: string; originalName: string; folder: string }>>([]);
+  const [galleryErrors, setGalleryErrors] = useState<string[]>([]);
   const [galleryImages, setGalleryImages] = useState<{ url: string; pathname: string; uploadedAt: string; size: number }[]>([]);
   const [galleryLoading, setGalleryLoading] = useState(false);
 
@@ -277,29 +279,44 @@ export default function AdminPage() {
     }
   }
 
-  async function uploadGalleryImage(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  async function uploadGalleryImages(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = e.target.files ? Array.from(e.target.files) : [];
+    if (files.length === 0) return;
     setGalleryUploading(true);
-    setGalleryUrl("");
+    setGalleryResults([]);
+    setGalleryErrors([]);
+
+    // Upload in batches of 4 so large folders don't time out
+    const BATCH = 4;
+    const allResults: Array<{ url: string; originalName: string; folder: string }> = [];
+    const allErrors: string[] = [];
+
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-      const res = await fetch("/api/admin/upload-gallery", {
-        method: "POST",
-        body: formData,
-      });
-      const data = await res.json();
-      if (data.url) {
-        setGalleryUrl(data.url);
-        fetchGalleryImages();
-      } else {
-        alert(data.error || "Upload failed");
+      for (let i = 0; i < files.length; i += BATCH) {
+        const batch = files.slice(i, i + BATCH);
+        setGalleryProgress(`Uploading ${Math.min(i + BATCH, files.length)} / ${files.length}...`);
+        const formData = new FormData();
+        for (const f of batch) {
+          formData.append("files", f);
+          const relPath = (f as File & { webkitRelativePath?: string }).webkitRelativePath || f.name;
+          formData.append("paths", relPath);
+        }
+        const res = await fetch("/api/admin/upload-gallery", {
+          method: "POST",
+          body: formData,
+        });
+        const data = await res.json();
+        if (Array.isArray(data.results)) allResults.push(...data.results);
+        if (Array.isArray(data.errors)) allErrors.push(...data.errors);
       }
+      setGalleryResults(allResults);
+      setGalleryErrors(allErrors);
+      fetchGalleryImages();
     } catch {
       alert("Upload failed");
     } finally {
       setGalleryUploading(false);
+      setGalleryProgress("");
       e.target.value = "";
     }
   }
@@ -719,68 +736,107 @@ export default function AdminPage() {
           <div className="rounded-xl bg-white p-6 shadow-[0_1px_4px_rgba(44,24,16,0.06)]">
             <h2 className="mb-4 text-lg font-bold text-text">Gallery Image Upload</h2>
             <p className="mb-4 text-sm text-text-light">
-              Upload an image, copy the URL, then paste it into the <strong>Image URL</strong> column
-              in your Google Sheets &quot;Fabrics&quot; tab.
+              Upload a folder (one per fabric, e.g. <code>Geena/</code>) or individual files.
+              HEIC is auto-converted to JPEG. Paste the comma-separated URLs into the
+              <strong> Image URLs</strong> column (G) of the Fabrics tab.
             </p>
 
-            <div className="mb-6">
-              <label className="block">
+            <div className="mb-4 grid gap-3 sm:grid-cols-2">
+              <label className="block rounded-lg border-2 border-dashed border-cream-dark bg-cream/40 p-4">
                 <span className="mb-1.5 block text-sm font-semibold text-text">
-                  Choose Image
+                  Upload a folder
                 </span>
                 <input
                   type="file"
-                  accept="image/jpeg,image/png,image/webp"
-                  onChange={uploadGalleryImage}
+                  multiple
+                  // @ts-expect-error — webkitdirectory isn't in React's HTMLInputElement types
+                  webkitdirectory=""
+                  directory=""
+                  accept="image/*,.heic,.heif"
+                  onChange={uploadGalleryImages}
                   disabled={galleryUploading}
                   className="w-full text-sm text-text-light file:mr-3 file:rounded-lg file:border-0 file:bg-primary file:px-4 file:py-2 file:text-sm file:font-semibold file:text-cream file:transition hover:file:bg-primary-dark disabled:opacity-60"
                 />
+                <p className="mt-1 text-xs text-text-muted">Grouped by folder name.</p>
               </label>
-              {galleryUploading && (
-                <p className="mt-2 text-sm text-text-muted">Uploading...</p>
-              )}
+              <label className="block rounded-lg border-2 border-dashed border-cream-dark bg-cream/40 p-4">
+                <span className="mb-1.5 block text-sm font-semibold text-text">
+                  Upload individual files
+                </span>
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*,.heic,.heif"
+                  onChange={uploadGalleryImages}
+                  disabled={galleryUploading}
+                  className="w-full text-sm text-text-light file:mr-3 file:rounded-lg file:border-0 file:bg-primary file:px-4 file:py-2 file:text-sm file:font-semibold file:text-cream file:transition hover:file:bg-primary-dark disabled:opacity-60"
+                />
+                <p className="mt-1 text-xs text-text-muted">Select multiple — no folder grouping.</p>
+              </label>
             </div>
+            {galleryUploading && (
+              <p className="mb-4 text-sm text-text-muted">{galleryProgress || "Uploading..."}</p>
+            )}
 
-            {galleryUrl && (
-              <div className="rounded-lg border border-green-200 bg-green-50 p-4">
-                <p className="mb-2 text-sm font-semibold text-green-800">Image uploaded!</p>
-                <div className="mb-3">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={galleryUrl}
-                    alt="Uploaded"
-                    className="max-h-48 rounded-lg border border-cream-dark"
-                  />
-                </div>
-                <p className="mb-1 text-xs font-semibold text-text-muted">Copy this URL to Google Sheets:</p>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    readOnly
-                    value={galleryUrl}
-                    className="flex-1 rounded-lg border border-[#D4C4B0] bg-white px-3 py-2 text-xs text-text"
-                    onClick={(e) => (e.target as HTMLInputElement).select()}
-                  />
-                  <button
-                    onClick={() => {
-                      navigator.clipboard.writeText(galleryUrl);
-                    }}
-                    className="rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-cream transition hover:bg-primary-dark"
-                  >
-                    Copy
-                  </button>
-                </div>
+            {galleryErrors.length > 0 && (
+              <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-xs text-red-700">
+                <p className="font-semibold">Some files failed:</p>
+                <ul className="mt-1 list-inside list-disc">
+                  {galleryErrors.map((err, i) => (
+                    <li key={i}>{err}</li>
+                  ))}
+                </ul>
               </div>
             )}
+
+            {galleryResults.length > 0 && (() => {
+              const groups = galleryResults.reduce<Record<string, string[]>>((acc, r) => {
+                const key = r.folder || "(loose files)";
+                (acc[key] ||= []).push(r.url);
+                return acc;
+              }, {});
+              return (
+                <div className="space-y-3">
+                  {Object.entries(groups).map(([folder, urls]) => {
+                    const joined = urls.join(", ");
+                    return (
+                      <div
+                        key={folder}
+                        className="rounded-lg border border-green-200 bg-green-50 p-4"
+                      >
+                        <div className="mb-2 flex items-center justify-between">
+                          <p className="text-sm font-semibold text-green-800">
+                            {folder} — {urls.length} image{urls.length === 1 ? "" : "s"}
+                          </p>
+                          <button
+                            onClick={() => navigator.clipboard.writeText(joined)}
+                            className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-cream transition hover:bg-primary-dark"
+                          >
+                            Copy URLs
+                          </button>
+                        </div>
+                        <textarea
+                          readOnly
+                          value={joined}
+                          rows={3}
+                          onClick={(e) => (e.target as HTMLTextAreaElement).select()}
+                          className="w-full rounded-lg border border-[#D4C4B0] bg-white px-3 py-2 text-xs text-text"
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })()}
 
             <div className="mt-6 rounded-lg bg-cream p-4">
               <p className="mb-2 text-sm font-semibold text-text">How it works:</p>
               <ol className="list-inside list-decimal space-y-1 text-sm text-text-light">
-                <li>Upload an image above</li>
-                <li>Copy the generated URL</li>
-                <li>Open your Google Sheet → &quot;Fabrics&quot; tab</li>
-                <li>Paste the URL in the <strong>Image URL</strong> column (C)</li>
-                <li>Set <strong>Category</strong> to &quot;fabric&quot; or &quot;shop&quot;</li>
+                <li>Put each fabric&apos;s photos in a folder named after the fabric (e.g. <code>Geena</code>)</li>
+                <li>Choose <strong>Upload a folder</strong> and select it</li>
+                <li>Click <strong>Copy URLs</strong> for that group</li>
+                <li>Open the Google Sheet → <strong>Fabrics</strong> tab</li>
+                <li>Paste into column <strong>G (Image URLs)</strong> for that fabric row</li>
                 <li>Set <strong>Active</strong> to TRUE</li>
               </ol>
             </div>

@@ -9,6 +9,61 @@ interface CatalogItem {
   image: string;
   category: string;
   caption: string;
+  image_urls?: string;
+}
+
+function splitImageUrls(raw?: string): string[] {
+  if (!raw) return [];
+  return raw
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
+function FabricCard({ fabric }: { fabric: CatalogItem }) {
+  const gallery = splitImageUrls(fabric.image_urls);
+  const fallback = fabric.image ? [fabric.image] : [];
+  const images = gallery.length > 0 ? gallery : fallback;
+  const [active, setActive] = useState(0);
+
+  return (
+    <div className="overflow-hidden rounded-xl bg-white shadow-[0_2px_12px_rgba(44,24,16,0.06)]">
+      {images.length > 0 && (
+        <div className="aspect-[4/3] bg-cream-dark">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={images[active]}
+            alt={fabric.name}
+            className="h-full w-full object-cover"
+          />
+        </div>
+      )}
+      {images.length > 1 && (
+        <div className="flex gap-2 overflow-x-auto border-t border-cream-dark bg-cream/40 p-2">
+          {images.map((src, idx) => (
+            <button
+              key={`${src}-${idx}`}
+              type="button"
+              onClick={() => setActive(idx)}
+              className={`h-14 w-14 flex-shrink-0 overflow-hidden rounded-md border-2 transition ${
+                idx === active ? "border-primary" : "border-transparent opacity-70 hover:opacity-100"
+              }`}
+              aria-label={`View image ${idx + 1}`}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={src} alt="" className="h-full w-full object-cover" />
+            </button>
+          ))}
+        </div>
+      )}
+      <div className="p-4">
+        <h3 className="font-bold text-text">{fabric.name}</h3>
+        {fabric.price && (
+          <p className="text-sm font-semibold text-primary">{fabric.price}</p>
+        )}
+      </div>
+    </div>
+  );
 }
 
 export default function GalleryPage() {
@@ -58,24 +113,7 @@ export default function GalleryPage() {
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {fabrics.map((fabric, i) => (
               <ScrollReveal key={`${fabric.name}-${i}`} delay={i * 80}>
-                <div className="overflow-hidden rounded-xl bg-white shadow-[0_2px_12px_rgba(44,24,16,0.06)]">
-                  {fabric.image && (
-                    <div className="aspect-[4/3] bg-cream-dark">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={fabric.image}
-                        alt={fabric.name}
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
-                  )}
-                  <div className="p-4">
-                    <h3 className="font-bold text-text">{fabric.name}</h3>
-                    {fabric.price && (
-                      <p className="text-sm font-semibold text-primary">{fabric.price}</p>
-                    )}
-                  </div>
-                </div>
+                <FabricCard fabric={fabric} />
               </ScrollReveal>
             ))}
           </div>
