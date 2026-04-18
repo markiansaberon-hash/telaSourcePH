@@ -252,7 +252,7 @@ export default function GalleryPage() {
       {/* Our Shop */}
       <section>
         <ScrollReveal>
-          <h2 className="mb-6 text-2xl font-bold text-text">Our Shop</h2>
+          <h2 className="mb-6 text-2xl font-bold text-text">Our Local Partner Store</h2>
         </ScrollReveal>
         {loading ? (
           <div className="py-12 text-center">

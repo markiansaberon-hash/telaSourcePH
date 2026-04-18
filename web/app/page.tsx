@@ -250,7 +250,7 @@ function ContactSection() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 21v-7.5a.75.75 0 01.75-.75h3a.75.75 0 01.75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349m-16.5 11.65V9.35m0 0a3.001 3.001 0 003.75-.615A2.993 2.993 0 009.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 002.25 1.016c.896 0 1.7-.393 2.25-1.016A3.001 3.001 0 0021 9.349m-18 0a2.994 2.994 0 00.344-1.153L3.75 3.75h16.5l.406 4.446a3 3 0 00.344 1.153" />
                 </svg>
               </div>
-              <h3 className="mb-2 text-lg font-bold text-text">Our Shop</h3>
+              <h3 className="mb-2 text-lg font-bold text-text">Our Local Partner Store</h3>
               <a
                 href="https://maps.app.goo.gl/LZMX8ichNB4nTyEBA"
                 target="_blank"

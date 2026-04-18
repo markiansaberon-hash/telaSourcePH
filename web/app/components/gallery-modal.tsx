@@ -224,7 +224,7 @@ export default function GalleryModal({ open, onClose }: GalleryModalProps) {
 
               {/* Our Shop */}
               <section>
-                <h3 className="mb-4 text-xl font-bold text-text">Our Shop</h3>
+                <h3 className="mb-4 text-xl font-bold text-text">Our Local Partner Store</h3>
                 {shopPhotos.length > 0 ? (
                   <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                     {shopPhotos.map((photo, i) => (
