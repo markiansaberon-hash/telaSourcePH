@@ -255,6 +255,14 @@ Google hasn't indexed the site by default — owner actions:
 4. **Groups**: post in PH sewing / school-uniform / buy-sell Groups (not competitor business Pages).
 5. Use the `/marketingtelasourceph` slash command to generate weekly Facebook content plans + post templates.
 
+### Planned: Google Calendar integration for post schedule
+
+TODO: make the marketing post schedule land in Google Calendar automatically. Plan:
+- Copy the `envisso:google-workspace` skill's OAuth + client setup patterns into a TelaSourcePH-local skill (do **not** edit the envisso plugin itself — it's a separate project)
+- Add Calendar API scope + `create_event` / `list_events` helpers
+- Wire into `/marketingtelasourceph` so `$ARGUMENTS` containing `calendar` or `sync` creates one event per post (title + caption + reminder, Asia/Manila)
+- Interim: `/marketingtelasourceph` can already produce a CSV the owner imports manually
+
 ## Deployment
 
 Push to `main` → Vercel auto-deploys → live at telasourceph.com.
