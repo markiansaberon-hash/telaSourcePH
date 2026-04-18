@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import ScrollReveal from "../components/scroll-reveal";
+import Lightbox from "../components/lightbox";
 
 interface CatalogItem {
   name: string;
@@ -20,7 +21,12 @@ function splitImageUrls(raw?: string): string[] {
     .filter(Boolean);
 }
 
-function FabricCard({ fabric }: { fabric: CatalogItem }) {
+interface FabricCardProps {
+  fabric: CatalogItem;
+  onOpen: (images: string[], index: number, alt: string) => void;
+}
+
+function FabricCard({ fabric, onOpen }: FabricCardProps) {
   const gallery = splitImageUrls(fabric.image_urls);
   const fallback = fabric.image ? [fabric.image] : [];
   const images = gallery.length > 0 ? gallery : fallback;
@@ -29,14 +35,19 @@ function FabricCard({ fabric }: { fabric: CatalogItem }) {
   return (
     <div className="overflow-hidden rounded-xl bg-white shadow-[0_2px_12px_rgba(44,24,16,0.06)]">
       {images.length > 0 && (
-        <div className="aspect-[4/3] bg-cream-dark">
+        <button
+          type="button"
+          onClick={() => onOpen(images, active, fabric.name)}
+          className="block aspect-[4/3] w-full bg-cream-dark"
+          aria-label={`Open ${fabric.name}`}
+        >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={images[active]}
             alt={fabric.name}
             className="h-full w-full object-cover"
           />
-        </div>
+        </button>
       )}
       {images.length > 1 && (
         <div className="flex gap-2 overflow-x-auto border-t border-cream-dark bg-cream/40 p-2">
@@ -69,6 +80,7 @@ function FabricCard({ fabric }: { fabric: CatalogItem }) {
 export default function GalleryPage() {
   const [items, setItems] = useState<CatalogItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [lightbox, setLightbox] = useState<{ images: string[]; index: number; alt: string } | null>(null);
 
   useEffect(() => {
     fetch("/api/fabrics")
@@ -82,6 +94,9 @@ export default function GalleryPage() {
 
   const fabrics = items.filter((i) => i.category === "fabric");
   const shopPhotos = items.filter((i) => i.category === "shop");
+
+  const openLightbox = (images: string[], index: number, alt: string) =>
+    setLightbox({ images, index, alt });
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">
@@ -97,6 +112,7 @@ export default function GalleryPage() {
           <p className="mt-2 text-sm text-text-muted">
             Prices are estimates and subject to change. Final quote confirmed via Viber/text.
           </p>
+          <p className="mt-1 text-xs text-text-muted">Tap any photo to view full size.</p>
         </div>
       </ScrollReveal>
 
@@ -113,7 +129,7 @@ export default function GalleryPage() {
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {fabrics.map((fabric, i) => (
               <ScrollReveal key={`${fabric.name}-${i}`} delay={i * 80}>
-                <FabricCard fabric={fabric} />
+                <FabricCard fabric={fabric} onOpen={openLightbox} />
               </ScrollReveal>
             ))}
           </div>
@@ -139,14 +155,19 @@ export default function GalleryPage() {
               <ScrollReveal key={`${photo.name}-${i}`} delay={i * 80}>
                 <div className="overflow-hidden rounded-xl bg-white shadow-[0_2px_12px_rgba(44,24,16,0.06)]">
                   {photo.image && (
-                    <div className="aspect-[4/3] bg-cream-dark">
+                    <button
+                      type="button"
+                      onClick={() => openLightbox([photo.image], 0, photo.caption || photo.name)}
+                      className="block aspect-[4/3] w-full bg-cream-dark"
+                      aria-label={`Open ${photo.caption || photo.name}`}
+                    >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={photo.image}
                         alt={photo.caption || photo.name}
                         className="h-full w-full object-cover"
                       />
-                    </div>
+                    </button>
                   )}
                   {(photo.caption || photo.name) && (
                     <div className="p-4">
@@ -163,6 +184,16 @@ export default function GalleryPage() {
           </div>
         )}
       </section>
+
+      {lightbox && (
+        <Lightbox
+          images={lightbox.images}
+          index={lightbox.index}
+          alt={lightbox.alt}
+          onClose={() => setLightbox(null)}
+          onIndexChange={(next) => setLightbox((prev) => (prev ? { ...prev, index: next } : prev))}
+        />
+      )}
     </div>
   );
 }

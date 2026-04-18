@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Link from "next/link";
 import MobileMenu from "./components/mobile-menu";
 import "./globals.css";
@@ -7,6 +7,12 @@ export const metadata: Metadata = {
   title: "TelaSource PH — Fabric Sourcing Made Easy",
   description:
     "Send your fabric list. We source everything from 50+ Divisoria suppliers and deliver to your door.",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
 };
 
 function Header() {
