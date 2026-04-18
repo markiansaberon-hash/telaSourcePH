@@ -1,8 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import ScrollReveal from "../components/scroll-reveal";
 import Lightbox from "../components/lightbox";
+import ShareButtons from "../components/share-buttons";
+import { slugify } from "../lib/catalog";
 
 interface CatalogItem {
   name: string;
@@ -109,6 +112,21 @@ function SaleFabricCard({ fabric, onOpen }: FabricCardProps) {
         {fabric.caption && (
           <p className="mt-0.5 text-xs text-text-muted">{fabric.caption}</p>
         )}
+        <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-cream-dark pt-3">
+          <Link
+            href={`/fabric/${slugify(fabric.name)}`}
+            className="text-xs font-semibold text-primary hover:underline"
+          >
+            View details &rarr;
+          </Link>
+          <div className="ml-auto">
+            <ShareButtons
+              url={`https://telasourceph.com/fabric/${slugify(fabric.name)}`}
+              title={fabric.name}
+              compact
+            />
+          </div>
+        </div>
       </div>
     </div>
   );

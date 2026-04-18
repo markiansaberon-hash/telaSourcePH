@@ -4,6 +4,7 @@ import MobileMenu from "./components/mobile-menu";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://telasourceph.com"),
   title: "TelaSource PH — Fabric Sourcing Made Easy",
   description:
     "Send your fabric list. We source everything from 50+ Divisoria suppliers and deliver to your door.",
