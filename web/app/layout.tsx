@@ -123,6 +123,7 @@ function Footer() {
           <div>
             <h4 className="mb-3 font-semibold">Contact Us</h4>
             <ul className="space-y-2 text-sm text-text-muted">
+              <li>Call / Viber / Text: 0917 893 5607</li>
               <li>Call / Viber / Text: 0917 328 7704</li>
               <li>
                 Facebook:{" "}

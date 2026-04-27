@@ -53,6 +53,7 @@ export default async function ThankYouPage({
           <p className="text-sm text-text-light">
             Questions? Call or message us
           </p>
+          <p className="text-lg font-bold text-primary">0917 893 5607</p>
           <p className="text-lg font-bold text-primary">0917 328 7704</p>
         </div>
 

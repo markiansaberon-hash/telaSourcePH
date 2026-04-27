@@ -273,6 +273,7 @@ function ContactSection() {
                 </svg>
               </div>
               <h3 className="mb-2 text-lg font-bold text-text">Call or Message</h3>
+              <p className="text-lg font-bold text-primary">0917 893 5607</p>
               <p className="text-lg font-bold text-primary">0917 328 7704</p>
               <p className="text-sm text-text-light">Viber / Call / Text</p>
             </div>
