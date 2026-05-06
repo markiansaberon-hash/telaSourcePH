@@ -59,6 +59,7 @@ export async function POST(request: NextRequest) {
       name?: string;
       phone?: string;
       contactMethod?: string;
+      messengerName?: string;
       location?: string;
       fabricList?: string;
       fabricItems?: string;
@@ -79,6 +80,7 @@ export async function POST(request: NextRequest) {
     const name = sanitize(String(body.name || ""));
     const phone = String(body.phone || "").replace(/[\s-]/g, "");
     const contactMethod = sanitize(String(body.contactMethod || ""));
+    const messengerName = sanitize(String(body.messengerName || ""));
     const location = sanitize(String(body.location || ""));
     const fabricList = sanitize(String(body.fabricList || ""));
     const fabricItemsRaw = sanitize(String(body.fabricItems || ""));
@@ -86,14 +88,14 @@ export async function POST(request: NextRequest) {
     const imageUrl = String(body.imageUrl || "");
 
     // Validation
-    if (!name || !phone || !contactMethod || !location) {
+    if (!name || !contactMethod || !location) {
       return NextResponse.json(
-        { error: "Name, phone, contact method, and location are required." },
+        { error: "Name, contact method, and location are required." },
         { status: 400 },
       );
     }
 
-    if (!isValidPhone(phone)) {
+    if (phone && !isValidPhone(phone)) {
       return NextResponse.json(
         { error: "Please enter a valid Philippine phone number (09XX XXX XXXX)." },
         { status: 400 },
@@ -122,7 +124,7 @@ export async function POST(request: NextRequest) {
     const dateSubmitted = new Date().toISOString();
 
     // Parse structured items
-    let parsedItems: Array<{ name: string; quantity: string; unit: string }> = [];
+    let parsedItems: Array<{ name: string; quantity: string; unit: string; comment?: string }> = [];
     if (hasStructuredItems) {
       try {
         const items = JSON.parse(fabricItemsRaw);
@@ -141,6 +143,7 @@ export async function POST(request: NextRequest) {
       customerName: name,
       phone,
       contactMethod,
+      messengerName: messengerName || undefined,
       location,
       fabricListText: fabricList,
       imageUrl,
@@ -167,14 +170,18 @@ export async function POST(request: NextRequest) {
     const chatId = process.env.TELEGRAM_CHAT_ID;
     if (botToken && chatId) {
       const itemsList = parsedItems.length > 0
-        ? parsedItems.map((i) => `  - ${i.name} (${i.quantity} ${i.unit})`).join("\n")
+        ? parsedItems.map((i) => {
+            const base = `  - ${i.name} (${i.quantity} ${i.unit})`;
+            return i.comment ? `${base}\n    💬 ${i.comment}` : base;
+          }).join("\n")
         : "";
       const message = [
         `📦 *New Order: ${orderId}*`,
         ``,
         `👤 *Name:* ${name}`,
-        `📱 *Phone:* ${phone}`,
+        phone ? `📱 *Phone:* ${phone}` : "",
         `💬 *Contact via:* ${contactMethod}`,
+        messengerName ? `👤 *FB Name:* ${messengerName}` : "",
         `📍 *Location:* ${location}`,
         fabricList ? `\n📋 *Fabric List:*\n${fabricList}` : "",
         itemsList ? `\n📋 *Items:*\n${itemsList}` : "",

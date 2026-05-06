@@ -38,9 +38,10 @@ interface FabricItem {
   name: string;
   quantity: string;
   unit: string;
+  comment: string;
 }
 
-const EMPTY_ITEM: FabricItem = { name: "", quantity: "", unit: "Rolls" };
+const EMPTY_ITEM: FabricItem = { name: "", quantity: "", unit: "Rolls", comment: "" };
 
 export default function UploadClient() {
   const router = useRouter();
@@ -50,6 +51,7 @@ export default function UploadClient() {
     name: "",
     phone: "",
     contactMethod: "",
+    messengerName: "",
     location: "",
     locationOther: "",
     fabricList: "",
@@ -121,8 +123,13 @@ export default function UploadClient() {
     e.preventDefault();
     setError("");
 
-    if (!form.name || !form.phone || !form.contactMethod || !form.location) {
+    if (!form.name || !form.contactMethod || !form.location) {
       setError("Please fill in all required fields.");
+      return;
+    }
+
+    if (form.contactMethod === "Messenger" && !form.messengerName.trim()) {
+      setError("Please enter your Facebook name so we can find you on Messenger.");
       return;
     }
 
@@ -179,6 +186,7 @@ export default function UploadClient() {
           name: form.name,
           phone: form.phone,
           contactMethod: form.contactMethod,
+          messengerName: form.contactMethod === "Messenger" ? form.messengerName.trim() : "",
           location:
             form.location === "Other"
               ? form.locationOther.trim()
@@ -260,7 +268,8 @@ export default function UploadClient() {
               htmlFor="phone"
               className="mb-1.5 block text-sm font-semibold text-text"
             >
-              Phone Number <span className="text-error">*</span>
+              Phone Number{" "}
+              <span className="font-normal text-text-light">(Optional)</span>
             </label>
             <input
               type="tel"
@@ -270,7 +279,6 @@ export default function UploadClient() {
               onChange={handleChange}
               placeholder="09XX XXX XXXX"
               className={inputClass}
-              required
             />
           </div>
 
@@ -298,6 +306,28 @@ export default function UploadClient() {
                 </option>
               ))}
             </select>
+            {form.contactMethod === "Messenger" && (
+              <div className="mt-3">
+                <label
+                  htmlFor="messengerName"
+                  className="mb-1.5 block text-sm font-semibold text-text"
+                >
+                  Your Facebook Name <span className="text-error">*</span>
+                </label>
+                <input
+                  type="text"
+                  id="messengerName"
+                  name="messengerName"
+                  value={form.messengerName}
+                  onChange={handleChange}
+                  placeholder="e.g. Maria Santos"
+                  className={inputClass}
+                />
+                <p className="mt-1 text-xs text-text-light">
+                  So we can find and message you on Messenger.
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Location */}
@@ -461,7 +491,7 @@ export default function UploadClient() {
                       placeholder="Fabric name (e.g. Oxford White)"
                       className="mb-2 w-full rounded border border-[#D4C4B0] px-3 py-2 text-sm focus:border-primary focus:outline-none"
                     />
-                    <div className="flex gap-2">
+                    <div className="mb-2 flex gap-2">
                       <input
                         type="number"
                         value={item.quantity}
@@ -486,6 +516,15 @@ export default function UploadClient() {
                         ))}
                       </select>
                     </div>
+                    <textarea
+                      value={item.comment}
+                      onChange={(e) =>
+                        handleItemChange(index, "comment", e.target.value)
+                      }
+                      placeholder="Comment (e.g. for t-shirts, needs to be stretchy)"
+                      rows={2}
+                      className="w-full rounded border border-[#D4C4B0] px-3 py-2 text-sm focus:border-primary focus:outline-none"
+                    />
                   </div>
                   {fabricItems.length > 1 && (
                     <button
