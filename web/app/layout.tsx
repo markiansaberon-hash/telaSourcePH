@@ -91,7 +91,7 @@ function Header() {
             href="/upload"
             className="rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-cream transition hover:bg-primary-dark"
           >
-            Upload Your List
+            Send Inquiry
           </Link>
         </div>
       </nav>

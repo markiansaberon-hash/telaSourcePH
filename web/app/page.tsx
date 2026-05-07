@@ -42,7 +42,7 @@ function HeroSection() {
           href="/upload"
           className="animate-fade-in-up animate-delay-300 inline-block rounded-full bg-gradient-to-r from-primary to-accent px-8 py-4 text-lg font-bold text-cream shadow-[0_4px_20px_rgba(196,102,46,0.4)] transition hover:scale-[1.02] hover:shadow-[0_6px_30px_rgba(196,102,46,0.5)]"
         >
-          Upload Your List Now
+          Send Inquiry Now
         </Link>
       </div>
     </section>
@@ -304,13 +304,13 @@ function CTASection() {
           Ready to source your fabrics?
         </h2>
         <p className="mb-8 text-lg text-cream/80">
-          Upload your list now and get a quotation within 24 hours.
+          Send us your inquiry and get a quotation within 24 hours.
         </p>
         <Link
           href="/upload"
           className="inline-block rounded-full bg-cream px-8 py-4 text-lg font-bold text-primary shadow-lg transition hover:scale-[1.02] hover:shadow-xl"
         >
-          Upload Your List Now
+          Send Inquiry Now
         </Link>
       </div>
     </section>
